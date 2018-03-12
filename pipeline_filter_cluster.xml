@@ -1,0 +1,87 @@
+<tool id="make_otu_table" name="Make otu table">
+<description>Make an otu or zotu table</description>
+<command interpreter="bash">
+pipeline_filter_cluster.sh 
+$input 
+$input2 
+$input3
+$output_zip
+$output_log
+$output_otu_sequence
+$output_otu_with_size
+$output_otutab
+$output_cluster
+$output_bioom
+$unoise_alpha
+</command>
+<macros>
+	<macro name="output_file_selection">
+		<param name="output_selection_otu_sequence" type="boolean" label="Otu sequences fasta file" checked="yes" truevalue="yes" falsevalue="no"/>
+		<param name="output_selection_otutab" type="boolean" label="Otu table" checked="yes" truevalue="yes" falsevalue="no"/>
+		<param name="output_selection_log" type="boolean" label="Log file" checked="yes" truevalue="yes" falsevalue="no"/>
+		<param name="output_selection_otu_with_size" type="boolean" label="Otu sequences with size annotations fasta file" selected="no" truevalue="yes" falsevalue="no"/>
+		<param name="output_selection_cluster" type="boolean" label="Cluster file" checked="no" truevalue="yes" falsevalue="no"/>
+		<param name="output_selection_bioom" type="boolean" label="Bioom file" checked="no" truevalue="yes" falsevalue="no"/>
+		<param name="output_selection_file_zip" type="boolean" label="zip file" checked="no" truevalue="yes" falsevalue="no"/>
+	</macro>
+</macros>
+<inputs>
+<param format="zip" name="input" type="data" label="zip file containing fasta or fastq files"/>
+
+				<param name="input2" type="select" multiple="false" label="Input type">
+					<option value="FASTA">fasta</option>
+					<option value="FASTQ" selected="true">fastq</option>
+				</param>
+				<param name="input3" type="select" multiple="false" label="Clustering">
+					<option value="unoise">UNOISE</option>
+					<option value="cluster_otus" selected="true">cluster_otus</option>
+				</param>
+				<param name="unoise_alpha" type="float" label="unoise_alpha (Works only for UNOISE)"  value="2.0" min="0.1" max="20"/>
+				<conditional name="output_type">
+					<param name="input4" type="select" multiple="false" label="Output">
+						<option value="out_zip" selected="true">Output as zip</option>
+						<option value="out_files">Output as seprated files</option>
+					</param>
+					<when value="out_files">
+						<expand macro="output_file_selection"/>
+					</when>
+				</conditional>
+</inputs>
+
+	
+<outputs>
+	<data format="zip" type="data" name="output_zip" label="$input.display_name zip">
+		<filter>output_type['input4'] == "out_zip" or output_type['output_selection_file_zip']</filter>
+	</data>
+	<data format="txt" name="output_log" label="$input.display_name log">
+		<filter>output_type['input4'] == "out_files" and output_type['output_selection_log']</filter>
+	</data>
+
+	<data format="fasta" name="output_otu_sequence" label="$input.display_name sequence">
+		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otu_sequence']</filter>
+	</data>
+
+	<data format="fasta" name="output_otu_with_size" label="$input.display_name sequence with size">
+		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otu_with_size']</filter>
+	</data>
+	<data format="tabular" name="output_otutab" label="$input.display_name otu table">
+		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otutab']</filter>
+	</data>
+	<data format="tabular" name="output_cluster" label="$input.display_name cluster file">
+		<filter>output_type['input4'] == "out_files" and output_type['output_selection_cluster']</filter>
+	</data>
+	
+	<data format="txt" name="output_bioom" label="$input.display_name bioom file">
+		<filter>output_type['input4'] == "out_files" and output_type['output_selection_bioom']</filter>
+	</data>
+</outputs>
+<tests>
+<test>
+<param name="test_input" value="test_input.txt"/>
+<output name="test_outout" file="test_output.txt"/>
+</test>
+</tests>
+<help>
+Pipeline for making otu tables
+</help>
+</tool>

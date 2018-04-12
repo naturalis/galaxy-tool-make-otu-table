@@ -98,8 +98,7 @@ def usearch_cluster(tempdir):
         Popen(["rm", tempdir + "/zotususearch.fa"])
 
 def usearch_otu_tab(tempdir):
-    #out, error = Popen(["usearch10.0.240", "-otutab", tempdir+"/combined.fa", "-db", tempdir+"/otu_sequences.fa", "-otutabout", tempdir+"/otutab.txt","-biomout", tempdir+"/bioom.json", "-dbmatched", tempdir+"/otus_with_sizes.fa", "-sizeout"],stdout=PIPE, stderr=PIPE).communicate()
-    out, error = Popen(["vsearch", "--usearch_global", tempdir+"/combined.fa", "--db", tempdir+"/otu_sequences.fa", "--id", "0.98", "--otutabout", tempdir+"/otutab.txt"], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["vsearch", "--usearch_global", tempdir+"/combined.fa", "--db", tempdir+"/otu_sequences.fa", "--id", "0.98", "--otutabout", tempdir+"/otutab.txt", "--biomout", tempdir+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(tempdir, out=out, error=error, function="otutab")
 
 def zip_it_up(tempdir):
@@ -113,14 +112,10 @@ def send_output(tempdir):
         call(["mv", tempdir + "/adminlog.log", args.out_log])
     if args.out_seq:
         call(["mv", tempdir + "/otu_sequences.fa", args.out_seq])
-    #if args.out_seq_size:
-    #    call(["mv", tempdir + "/otus_with_sizes.fa", args.out_seq_size])
     if args.out_otu_table:
         call(["mv", tempdir + "/otutab.txt", args.out_otu_table])
-    #if args.out_cluster_file:
-    #    call(["mv", tempdir + "/cluster_file.txt", args.out_cluster_file])
-    #if args.out_bioom_file:
-    #   call(["mv", tempdir + "/bioom.json", args.out_bioom_file])
+    if args.out_bioom_file:
+       call(["mv", tempdir + "/bioom.json", args.out_bioom_file])
 
 
 

@@ -8,9 +8,7 @@ $input3
 $output_zip
 $output_log
 $output_otu_sequence
-$output_otu_with_size
 $output_otutab
-$output_cluster
 $output_bioom
 $unoise_alpha
 </command>
@@ -19,8 +17,6 @@ $unoise_alpha
 		<param name="output_selection_otu_sequence" type="boolean" label="Otu sequences fasta file" checked="yes" truevalue="yes" falsevalue="no"/>
 		<param name="output_selection_otutab" type="boolean" label="Otu table" checked="yes" truevalue="yes" falsevalue="no"/>
 		<param name="output_selection_log" type="boolean" label="Log file" checked="yes" truevalue="yes" falsevalue="no"/>
-		<param name="output_selection_otu_with_size" type="boolean" label="Otu sequences with size annotations fasta file" selected="no" truevalue="yes" falsevalue="no"/>
-		<param name="output_selection_cluster" type="boolean" label="Cluster file" checked="no" truevalue="yes" falsevalue="no"/>
 		<param name="output_selection_bioom" type="boolean" label="Bioom file" checked="no" truevalue="yes" falsevalue="no"/>
 		<param name="output_selection_file_zip" type="boolean" label="zip file" checked="no" truevalue="yes" falsevalue="no"/>
 	</macro>
@@ -60,17 +56,9 @@ $unoise_alpha
 	<data format="fasta" name="output_otu_sequence" label="$input.display_name sequence">
 		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otu_sequence']</filter>
 	</data>
-
-	<data format="fasta" name="output_otu_with_size" label="$input.display_name sequence with size">
-		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otu_with_size']</filter>
-	</data>
 	<data format="tabular" name="output_otutab" label="$input.display_name otu table">
 		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otutab']</filter>
 	</data>
-	<data format="tabular" name="output_cluster" label="$input.display_name cluster file">
-		<filter>output_type['input4'] == "out_files" and output_type['output_selection_cluster']</filter>
-	</data>
-	
 	<data format="txt" name="output_bioom" label="$input.display_name bioom file">
 		<filter>output_type['input4'] == "out_files" and output_type['output_selection_bioom']</filter>
 	</data>

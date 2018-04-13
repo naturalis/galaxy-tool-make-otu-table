@@ -2,7 +2,7 @@
 """
 
 """
-import sys, os, argparse
+import sys, os, argparse, string
 import glob
 from Bio import SeqIO
 from subprocess import call, Popen, PIPE
@@ -16,123 +16,138 @@ requiredArguments.add_argument('-i', '--input', metavar='input zipfile', dest='i
 requiredArguments.add_argument('-t', '--input_type', metavar='FASTQ or FASTA input', dest='input_type', type=str,
                                help='Sets the input type, FASTQ or FASTA', required=True)
 requiredArguments.add_argument('-c', '--cluster_command', metavar='otu or zotu(UNOISE)', dest='cluster', type=str,
-                               help='Choice of clustering, usearch -cluster_otus or unoise', required=True)
-requiredArguments.add_argument('-o', '--output', metavar='output', dest='out', type=str,
-                               help='output in zip format', required=True, nargs='?', default="")
-requiredArguments.add_argument('-ol', '--output_log', metavar='output_log', dest='out_log', type=str,
-                               help='output log file', required=True, nargs='?', default="")
-requiredArguments.add_argument('-os', '--output_sequence', metavar='output_sequence', dest='out_seq', type=str,
-                               help='output sequence file', required=True, nargs='?', default="")
-requiredArguments.add_argument('-osz', '--output_sequence_size', metavar='output_sequence_size', dest='out_seq_size', type=str,
-                               help='output sequence file with size annotation', required=True, nargs='?', default="")
-requiredArguments.add_argument('-ot', '--output_table', metavar='output_table', dest='out_otu_table', type=str,
-                               help='output otu table file', required=True, nargs='?', default="")
-requiredArguments.add_argument('-oc', '--output_clusterfile', metavar='output_clusterfile', dest='out_cluster_file', type=str,
-                               help='output cluster file', required=True, nargs='?', default="")
-requiredArguments.add_argument('-ob', '--output_bioomfile', metavar='output_bioomfile', dest='out_bioom_file', type=str,
-                               help='output bioom file', required=True, nargs='?', default="")
+                               help='Choice of clustering, usearch -cluster_otus or unoise', required=True, choices=['unoise', 'cluster_otus', 'vsearch'])
+requiredArguments.add_argument('-of', '--folder_output', metavar='folder output', dest='out_folder', type=str,
+                               help='Folder name for the output files', required=True)
 requiredArguments.add_argument('-a', '--unoise_alpha', metavar='unoise_alpha', dest='unoise_alpha', type=str,
-                               help='unoise_alpha value', required=False, nargs='?', default="")
-
-
+                               help='unoise_alpha value', required=False, nargs='?', default="2.0")
+requiredArguments.add_argument('-cluster_id', '--cluster_id', metavar='Minimal cluster identity percentage', dest='clusterid', type=str,
+                               help='Minimal cluster identity percentage', required=False, nargs='?', default="97")
+requiredArguments.add_argument('-cluster_size', '--cluster_size', metavar='Minimal cluster size', dest='clustersize', type=str,
+                               help='Minimal cluster size', required=False, nargs='?', default="1")
 args = parser.parse_args()
-
 
 def check_if_fasta(file):
     with open(file, "r") as handle:
         fasta = SeqIO.parse(handle, "fasta")
         return any(fasta)
 
-def extension_check(tempdir):
-    files = [os.path.basename(x) for x in sorted(glob.glob(tempdir + "/files/*"))]
+def extension_check(outputFolder):
+    files = [os.path.basename(x) for x in sorted(glob.glob(outputFolder + "/files/*"))]
     for x in files:
         if args.input_type == "FASTQ":
             if os.path.splitext(x)[1].lower() == ".fastq" or os.path.splitext(x)[1] == ".fq":
-                fastafile = os.path.splitext(x)[0].replace(".", "_")+".fa"
-                error = Popen(["awk '{if(NR%4==1) {printf(\">%s\\n\",substr($0,2));} else if(NR%4==2) print;}' " + tempdir + "/files/" + x + " > "+tempdir+"/fasta/" + fastafile], stdout=PIPE, stderr=PIPE, shell=True).communicate()[1].strip()
-                admin_log(tempdir, error=error, function="extension_check")
-                call(["sed 's/>/>" + fastafile[:-3] + "./' " + tempdir + "/fasta/"+fastafile+" >> " + tempdir + "/combined.fa"], shell=True)
+                fastafile = os.path.splitext(x)[0].translate((string.maketrans("-. ", "___"))) + ".fa"
+                error = Popen(["awk '{if(NR%4==1) {printf(\">%s\\n\",substr($0,2));} else if(NR%4==2) print;}' " + outputFolder + "/files/" + x + " > "+outputFolder+"/fasta/" + fastafile], stdout=PIPE, stderr=PIPE, shell=True).communicate()[1].strip()
+                admin_log(outputFolder, error=error, function="extension_check")
+                call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/"+fastafile+" >> " + outputFolder + "/combined.fa"], shell=True)
             else:
-                admin_log(tempdir, error=x+"\nWrong extension, no fastq file (.fastq, .fq) file will be ignored", function="extension_check")
+                admin_log(outputFolder, error=x+"\nWrong extension, no fastq file (.fastq, .fq) file will be ignored", function="extension_check")
         else:
-            if check_if_fasta(tempdir + "/files/" + x):
-                fastafile = os.path.splitext(x)[0].replace(".", "_")+".fa"
-                call(["mv", tempdir + "/files/" + x, tempdir + "/fasta/" + fastafile])
-                call(["sed 's/>/>" + fastafile[:-3] + "./' " + tempdir + "/fasta/" + fastafile + " >> " + tempdir + "/combined.fa"], shell=True)
+            if check_if_fasta(outputFolder + "/files/" + x):
+                fastafile = os.path.splitext(x)[0].translate((string.maketrans("-. ", "___"))) + ".fa"
+                call(["mv", outputFolder + "/files/" + x, outputFolder + "/fasta/" + fastafile])
+                call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/" + fastafile + " >> " + outputFolder + "/combined.fa"], shell=True)
             else:
-                admin_log(tempdir, error="This is not a fasta file, file will be ignored: " + x, function="extension_check")
-    Popen(["rm", "-rf", tempdir + "/files"], stdout=PIPE, stderr=PIPE)
+                admin_log(outputFolder, error="This is not a fasta file, file will be ignored: " + x, function="extension_check")
+    Popen(["rm", "-rf", outputFolder + "/files"], stdout=PIPE, stderr=PIPE)
 
-
-
-def admin_log(tempdir, out=None, error=None, function=""):
-    with open(tempdir + "/adminlog.log", 'a') as adminlogfile:
+def admin_log(outputFolder, out=None, error=None, function=""):
+    with open(outputFolder + "/log.log", 'a') as adminlogfile:
         seperation = 60 * "="
         if out:
-            adminlogfile.write("out "+ function + " \n" + seperation + "\n" + out + "\n\n")
+            adminlogfile.write(function + " \n" + seperation + "\n" + out + "\n\n")
         if error:
-            adminlogfile.write("error " + function + "\n" + seperation + "\n" + error + "\n\n")
+            adminlogfile.write(function + "\n" + seperation + "\n" + error + "\n\n")
 
-def remove_files(tempdir):
-    call(["rm", "-rf", tempdir+"/fasta"])
-    call(["rm", tempdir+"/combined.fa", tempdir+"/uniques.fa"])
+def remove_files(outputFolder):
+    call(["rm", "-rf", outputFolder+"/fasta"])
+    call(["rm", outputFolder+"/combined.fa", outputFolder+"/uniques.fa"])
 
-def vsearch_derep_fulllength(tempdir):
-    out, error = Popen(["vsearch", "--derep_fulllength", tempdir+"/combined.fa", "--output", tempdir+"/uniques.fa", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
-    admin_log(tempdir, out=out, error=error, function="derep_fulllength")
+def vsearch_derep_fulllength(outputFolder):
+    out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
+    admin_log(outputFolder, out=out, error=error, function="derep_fulllength")
 
-def usearch_cluster(tempdir):
+def usearch_cluster(outputFolder):
     if args.cluster == "cluster_otus":
-        out, error = Popen(["usearch10.0.240", "-cluster_otus", tempdir+"/uniques.fa", "-minsize", "2", "-uparseout", tempdir+"/cluster_file.txt", "-otus", tempdir+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(tempdir, out=out, error=error, function="cluster_otus")
+        out, error = Popen(["usearch10.0.240", "-cluster_otus", outputFolder+"/uniques.fa", "-minsize", "2", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
+        admin_log(outputFolder, out=out, error=error, function="cluster_otus")
 
     if args.cluster == "unoise":
-        out, error = Popen(["usearch10.0.240","-unoise3", tempdir+"/uniques.fa", "-unoise_alpha", args.unoise_alpha, "-tabbedout", tempdir+"/cluster_file.txt", "-zotus", tempdir+"/zotususearch.fa", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(tempdir, out=out, error=error, function="unoise")
+        out, error = Popen(["usearch10.0.240","-unoise3", outputFolder+"/uniques.fa", "-unoise_alpha", args.unoise_alpha, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        admin_log(outputFolder, out=out, error=error, function="unoise")
         count = 1
-        with open(tempdir + "/zotususearch.fa", "rU") as handle, open(tempdir + "/otu_sequences.fa", 'a') as newotu:
+        with open(outputFolder + "/zotususearch.fa", "rU") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:
             for record in SeqIO.parse(handle, "fasta"):
                 newotu.write(">Otu" + str(count) + "\n")
                 newotu.write(str(record.seq) + "\n")
                 count += 1
-        Popen(["rm", tempdir + "/zotususearch.fa"])
+        Popen(["rm", outputFolder + "/zotususearch.fa"])
 
-def usearch_otu_tab(tempdir):
-    out, error = Popen(["vsearch", "--usearch_global", tempdir+"/combined.fa", "--db", tempdir+"/otu_sequences.fa", "--id", "0.98", "--otutabout", tempdir+"/otutab.txt", "--biomout", tempdir+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
-    admin_log(tempdir, out=out, error=error, function="otutab")
+    if args.cluster == "vsearch":
+        out, error = Popen(["vsearch", "--uchime_denovo", outputFolder+"/uniques.fa", "--sizein", "--fasta_width", "0", "--nonchimeras", outputFolder+"/non_chimera.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        admin_log(outputFolder, out=out, error=error, function="vsearch uchime")
+        out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--sizeout", "--fasta_width", "0", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences_vsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        admin_log(outputFolder, out=out, error=error, function="vsearch cluster")
+        call(["rm", outputFolder + "/non_chimera.fa"])
+        remove_single_clusters(outputFolder)
 
-def zip_it_up(tempdir):
-    call(["zip","-r","-j", tempdir+".zip", tempdir],stdout=open(os.devnull, 'wb'))
-    call(["mv", tempdir + ".zip", args.out])
+def remove_single_clusters(outputFolder):
+    otuCount = 0
+    singletonCount = 0
+    with open(outputFolder + "/otu_sequences.fa", "a") as otuFile:
+        for record in SeqIO.parse(outputFolder+"/otu_sequences_vsearch.fa", "fasta"):
+            size = str(record.description).split("size=")[1][:-1]
+            if int(size) > int(args.clustersize):
+                otuFile.write(">"+str(record.description)+"\n"+str(record.seq)+"\n")
+                otuCount += 1
+            else:
+                singletonCount += 1
+    #write to log
+    out = "Minimal otu size:" + str(3) + " \nOtu's:" + str(otuCount) + "\nSingletons:" + str(singletonCount)
+    admin_log(outputFolder, out=out, function="cluster size filtering")
+    call(["rm", outputFolder + "/otu_sequences_vsearch.fa"])
 
-def send_output(tempdir):
+def usearch_otu_tab(outputFolder):
+    out, error = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.98", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
+    admin_log(outputFolder, out=out, error=error, function="otutab")
+
+def zip_it_up(outputFolder):
+    out, error = Popen(["zip","-r","-j", outputFolder+"/all_output.zip", outputFolder+"/"], stdout=PIPE, stderr=PIPE).communicate()
+    admin_log(outputFolder, out=out, error=error, function="zip_it_up")
+
+def send_output(outputFolder):
     if args.out:
-        zip_it_up(tempdir)
+        zip_it_up(outputFolder)
     if args.out_log:
-        call(["mv", tempdir + "/adminlog.log", args.out_log])
+        call(["mv", outputFolder + "/adminlog.log", args.out_log])
     if args.out_seq:
-        call(["mv", tempdir + "/otu_sequences.fa", args.out_seq])
+        call(["mv", outputFolder + "/otu_sequences.fa", args.out_seq])
     if args.out_otu_table:
-        call(["mv", tempdir + "/otutab.txt", args.out_otu_table])
+        call(["mv", outputFolder + "/otutab.txt", args.out_otu_table])
     if args.out_bioom_file:
-       call(["mv", tempdir + "/bioom.json", args.out_bioom_file])
+        call(["mv", outputFolder + "/bioom.json", args.out_bioom_file])
 
-
+def make_output_folders(outputFolder):
+    """
+    Output en work folders are created. The wrapper uses these folders to save the files that are used between steps.
+    :param outputFolder: outputFolder path
+    """
+    call(["mkdir", "-p", outputFolder])
+    call(["mkdir", outputFolder + "/files"])
+    call(["mkdir", outputFolder + "/fasta"])
 
 def main():
-    tempdir = Popen(["mktemp", "-d", "/media/GalaxyData/files/XXXXXX"], stdout=PIPE, stderr=PIPE).communicate()[0].strip()
-    print tempdir
-    call(["mkdir", tempdir + "/fasta", tempdir + "/files"])
-    zip_out, zip_error = Popen(["unzip", args.inzip, "-d", tempdir.strip() + "/files"], stdout=PIPE,stderr=PIPE).communicate()
-    admin_log(tempdir, zip_out, zip_error)
-    extension_check(tempdir)
-    vsearch_derep_fulllength(tempdir)
-    usearch_cluster(tempdir)
-    usearch_otu_tab(tempdir)
-    remove_files(tempdir)
-    send_output(tempdir)
-    call(["rm", "-rf", tempdir])
-
+    outputFolder = args.out_folder
+    make_output_folders(outputFolder)
+    zip_out, zip_error = Popen(["unzip", args.inzip, "-d", outputFolder.strip() + "/files"], stdout=PIPE,stderr=PIPE).communicate()
+    admin_log(outputFolder, zip_out, zip_error)
+    extension_check(outputFolder)
+    vsearch_derep_fulllength(outputFolder)
+    usearch_cluster(outputFolder)
+    usearch_otu_tab(outputFolder)
+    remove_files(outputFolder)
+    zip_it_up(outputFolder)
 
 if __name__ == '__main__':
     main()

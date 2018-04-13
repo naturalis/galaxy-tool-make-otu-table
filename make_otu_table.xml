@@ -1,16 +1,23 @@
 <tool id="make_otu_table" name="Make otu table">
 <description>Make an otu or zotu table</description>
 <command interpreter="bash">
-pipeline_filter_cluster.sh 
+make_otu_table.sh
 $input 
-$input2 
-$input3
+$input_type
+$algo.cluster_algo
+<!--output files-->
 $output_zip
 $output_log
 $output_otu_sequence
 $output_otutab
 $output_bioom
-$unoise_alpha
+	#if $algo.cluster_algo == "unoise"
+		$algo.unoise_alpha
+	#end if
+	#if $algo.cluster_algo == "vsearch"
+		$algo.cluster_id
+	    $algo.cluster_size
+	#end if
 </command>
 <macros>
 	<macro name="output_file_selection">
@@ -20,21 +27,36 @@ $unoise_alpha
 		<param name="output_selection_bioom" type="boolean" label="Bioom file" checked="no" truevalue="yes" falsevalue="no"/>
 		<param name="output_selection_file_zip" type="boolean" label="zip file" checked="no" truevalue="yes" falsevalue="no"/>
 	</macro>
+	<macro name="unoise_macro">
+		<param name="unoise_alpha" type="float" label="unoise_alpha"  value="2.0" min="0.1" max="20"/>
+	</macro>
+	<macro name="vsearch_macro">
+		<param name="cluster_id" type="float" label="Cluster id" value="0.97" min="0.1" max="1"/>
+		<param name="cluster_size" type="integer" label="Minimal cluster size" value="2" min="0" max="999"/>
+	</macro>
 </macros>
 <inputs>
 <param format="zip" name="input" type="data" label="zip file containing fasta or fastq files"/>
 
-				<param name="input2" type="select" multiple="false" label="Input type">
+				<param name="input_type" type="select" multiple="false" label="Input type">
 					<option value="FASTA">fasta</option>
 					<option value="FASTQ" selected="true">fastq</option>
 				</param>
-				<param name="input3" type="select" multiple="false" label="Clustering">
-					<option value="unoise">UNOISE</option>
-					<option value="cluster_otus" selected="true">cluster_otus</option>
-				</param>
-				<param name="unoise_alpha" type="float" label="unoise_alpha (Works only for UNOISE)"  value="2.0" min="0.1" max="20"/>
+	            <conditional name="algo">
+					<param name="cluster_algo" type="select" multiple="false" label="Clustering">
+						<option value="unoise">UNOISE</option>
+						<option value="cluster_otus" selected="true">cluster_otus (UPARSE)</option>
+						<option value="vsearch">VSEARCH</option>
+					</param>
+					<when value="unoise">
+						<expand macro="unoise_macro"/>
+					</when>
+					<when value="vsearch">
+						<expand macro="vsearch_macro"/>
+					</when>
+				</conditional>
 				<conditional name="output_type">
-					<param name="input4" type="select" multiple="false" label="Output">
+					<param name="output_files" type="select" multiple="false" label="Output">
 						<option value="out_zip" selected="true">Output as zip</option>
 						<option value="out_files">Output as seprated files</option>
 					</param>
@@ -47,20 +69,19 @@ $unoise_alpha
 	
 <outputs>
 	<data format="zip" type="data" name="output_zip" label="$input.display_name zip">
-		<filter>output_type['input4'] == "out_zip" or output_type['output_selection_file_zip']</filter>
+		<filter>output_type['output_files'] == "out_zip" or output_type['output_selection_file_zip']</filter>
 	</data>
 	<data format="txt" name="output_log" label="$input.display_name log">
-		<filter>output_type['input4'] == "out_files" and output_type['output_selection_log']</filter>
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_log']</filter>
 	</data>
-
 	<data format="fasta" name="output_otu_sequence" label="$input.display_name sequence">
-		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otu_sequence']</filter>
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otu_sequence']</filter>
 	</data>
 	<data format="tabular" name="output_otutab" label="$input.display_name otu table">
-		<filter>output_type['input4'] == "out_files" and output_type['output_selection_otutab']</filter>
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otutab']</filter>
 	</data>
 	<data format="txt" name="output_bioom" label="$input.display_name bioom file">
-		<filter>output_type['input4'] == "out_files" and output_type['output_selection_bioom']</filter>
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_bioom']</filter>
 	</data>
 </outputs>
 <tests>

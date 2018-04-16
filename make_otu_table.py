@@ -99,7 +99,8 @@ def remove_single_clusters(outputFolder):
         for record in SeqIO.parse(outputFolder+"/otu_sequences_vsearch.fa", "fasta"):
             size = str(record.description).split("size=")[1][:-1]
             if int(size) > int(args.clustersize):
-                otuFile.write(">"+str(record.id)+"\n"+str(record.seq)+"\n")
+                header = str(record.description).split(";size=")[0]
+                otuFile.write(">"+str(header)+"\n"+str(record.seq)+"\n")
                 otuCount += 1
             else:
                 singletonCount += 1

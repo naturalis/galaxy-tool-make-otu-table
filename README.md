@@ -2,7 +2,7 @@
 A pipeline for clustering and making otu tables
 ## Getting Started
 ### Prerequisites
-usearch and vsearch
+
 **usearch**<br />
 ```
 cd /home/galaxy/Tools/usearch

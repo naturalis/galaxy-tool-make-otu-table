@@ -3,19 +3,21 @@ A pipeline for clustering and making otu tables
 ## Getting Started
 ### Prerequisites
 usearch and vsearch
-**usearch**
+**usearch**<br />
+```
 cd /home/galaxy/Tools/usearch
 sudo wget [your usearch licence]
 mv [your usearch licence] usearch11
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
-
-**vsearch**
+```
+**vsearch**<br />
+```
 cd /home/galaxy/Tools/
 wget https://github.com/torognes/vsearch/releases/download/v2.8.1/vsearch-2.8.1-linux-x86_64.tar.gz
 tar xzf vsearch-2.8.1-linux-x86_64.tar.gz
 sudo rm vsearch-2.8.1-linux-x86_64.tar.gz
 sudo ln -s /home/galaxy/Tools/vsearch-2.8.1-linux-x86_64/bin/vsearch /usr/local/bin/vsearch
-
+```
 ### Installing
 Installing the tool for use in Galaxy
 ```

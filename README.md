@@ -18,6 +18,8 @@ tar xzf vsearch-2.8.1-linux-x86_64.tar.gz
 sudo rm vsearch-2.8.1-linux-x86_64.tar.gz
 sudo ln -s /home/galaxy/Tools/vsearch-2.8.1-linux-x86_64/bin/vsearch /usr/local/bin/vsearch
 ```
+**R**<br />
+**DADA2**<br />
 ### Installing
 Installing the tool for use in Galaxy
 ```

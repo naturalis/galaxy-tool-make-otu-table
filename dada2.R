@@ -13,7 +13,8 @@ if (length(args)==0) {
 }
 
 path <- args[1]
-fnFs <- list.files(path, full.names = TRUE)
+#fnFs <- list.files(path, full.names = TRUE)
+fnFs <- args[1]
 errF <- learnErrors(fnFs, multithread=TRUE)
 derepFs <- derepFastq(fnFs, verbose=TRUE)
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)

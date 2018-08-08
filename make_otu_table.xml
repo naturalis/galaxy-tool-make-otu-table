@@ -44,8 +44,9 @@ $output_bioom
 				</param>
 	            <conditional name="algo">
 					<param name="cluster_algo" type="select" multiple="false" label="Clustering">
-						<option value="unoise">UNOISE</option>
-						<option value="cluster_otus" selected="true">cluster_otus (UPARSE)</option>
+						<option value="unoise" selected="true">UNOISE</option>
+						<option value="dada2">DADA2</option>
+						<option value="cluster_otus">cluster_otus (UPARSE)</option>
 						<option value="vsearch">VSEARCH</option>
 					</param>
 					<when value="unoise">

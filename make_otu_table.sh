@@ -4,9 +4,12 @@
 #outlocation=$(mktemp -d /media/GalaxyData/database/files/XXXXXX)
 #location for the testserver
 #outlocation=$(mktemp -d /media/GalaxyData/files/XXXXXX)
-
 outlocation=$(mktemp -d /home/galaxy/ExtraRef/XXXXXX)
 if [ $3 == "cluster_otus" ]
+then
+make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation
+fi
+if [ $3 == "dada2" ]
 then
 make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation
 fi

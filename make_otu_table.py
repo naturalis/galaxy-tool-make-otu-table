@@ -16,7 +16,7 @@ requiredArguments.add_argument('-i', '--input', metavar='input zipfile', dest='i
 requiredArguments.add_argument('-t', '--input_type', metavar='FASTQ or FASTA input', dest='input_type', type=str,
                                help='Sets the input type, FASTQ or FASTA', required=True)
 requiredArguments.add_argument('-c', '--cluster_command', metavar='otu or zotu(UNOISE)', dest='cluster', type=str,
-                               help='Choice of clustering, usearch -cluster_otus or unoise', required=True, choices=['unoise', 'cluster_otus', 'vsearch'])
+                               help='Choice of clustering, usearch -cluster_otus or unoise', required=True, choices=['unoise', 'cluster_otus', 'vsearch', 'dada2'])
 requiredArguments.add_argument('-of', '--folder_output', metavar='folder output', dest='out_folder', type=str,
                                help='Folder name for the output files', required=True)
 requiredArguments.add_argument('-a', '--unoise_alpha', metavar='unoise_alpha', dest='unoise_alpha', type=str,
@@ -41,6 +41,7 @@ def extension_check(outputFolder):
                 error = Popen(["awk '{if(NR%4==1) {printf(\">%s\\n\",substr($0,2));} else if(NR%4==2) print;}' " + outputFolder + "/files/" + x + " > "+outputFolder+"/fasta/" + fastafile], stdout=PIPE, stderr=PIPE, shell=True).communicate()[1].strip()
                 admin_log(outputFolder, error=error, function="extension_check")
                 call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/"+fastafile+" >> " + outputFolder + "/combined.fa"], shell=True)
+                call(["cat " + outputFolder + "/files/"+x+" >> "+ outputFolder + "/combined_dada.fastq"], shell=True)
             else:
                 admin_log(outputFolder, error=x+"\nWrong extension, no fastq file (.fastq, .fq) file will be ignored", function="extension_check")
         else:
@@ -62,7 +63,8 @@ def admin_log(outputFolder, out=None, error=None, function=""):
 
 def remove_files(outputFolder):
     call(["rm", "-rf", outputFolder+"/fasta"])
-    call(["rm", outputFolder+"/combined.fa", outputFolder+"/uniques.fa"])
+    if args.cluster != "dada2":
+        call(["rm", outputFolder+"/combined.fa", outputFolder+"/uniques.fa"])
 
 def vsearch_derep_fulllength(outputFolder):
     out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
@@ -92,6 +94,10 @@ def usearch_cluster(outputFolder):
         call(["rm", outputFolder + "/non_chimera.fa"])
         remove_single_clusters(outputFolder)
 
+def dada2_cluster(outputFolder):
+    out, error = Popen(["Rscript", "/home/ubuntu/Marten/github_scripts/galaxy-tool-make-otu-table/dada2.R", outputFolder + "/combined_dada.fastq", outputFolder + "/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
+    admin_log(outputFolder, out=out, error=error, function="dada2")
+
 def remove_single_clusters(outputFolder):
     otuCount = 0
     singletonCount = 0
@@ -110,7 +116,7 @@ def remove_single_clusters(outputFolder):
     call(["rm", outputFolder + "/otu_sequences_vsearch.fa"])
 
 def usearch_otu_tab(outputFolder):
-    out, error = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.98", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.97", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="otutab")
 
 def zip_it_up(outputFolder):
@@ -144,8 +150,11 @@ def main():
     zip_out, zip_error = Popen(["unzip", args.inzip, "-d", outputFolder.strip() + "/files"], stdout=PIPE,stderr=PIPE).communicate()
     admin_log(outputFolder, zip_out, zip_error)
     extension_check(outputFolder)
-    vsearch_derep_fulllength(outputFolder)
-    usearch_cluster(outputFolder)
+    if args.cluster == "dada2":
+        dada2_cluster(outputFolder)
+    else:
+        vsearch_derep_fulllength(outputFolder)
+        usearch_cluster(outputFolder)
     usearch_otu_tab(outputFolder)
     remove_files(outputFolder)
     zip_it_up(outputFolder)

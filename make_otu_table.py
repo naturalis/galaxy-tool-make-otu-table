@@ -65,7 +65,8 @@ def remove_files(outputFolder):
     call(["rm", "-rf", outputFolder+"/fasta"])
     if args.cluster != "dada2":
         call(["rm", outputFolder+"/combined.fa", outputFolder+"/uniques.fa"])
-
+    if args.cluster == "dada2":
+        call(["rm", outputFolder + "/combined_dada.fastq", outputFolder + "/combined_dada_filtered.fastq"])
 def vsearch_derep_fulllength(outputFolder):
     out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="derep_fulllength")
@@ -95,7 +96,16 @@ def usearch_cluster(outputFolder):
         remove_single_clusters(outputFolder)
 
 def dada2_cluster(outputFolder):
-    out, error = Popen(["Rscript", "/home/ubuntu/Marten/github_scripts/galaxy-tool-make-otu-table/dada2.R", outputFolder + "/combined_dada.fastq", outputFolder + "/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
+    ncount = 0
+    with open(outputFolder + "/combined_dada.fastq", "rU") as handle, open(outputFolder +"/combined_dada_filtered.fastq", "a") as output:
+        for record in SeqIO.parse(handle, "fastq"):
+            if "N" in str(record.seq):
+                ncount += 1
+            else:
+                output.write(record.format("fastq"))
+    admin_log(outputFolder, out="Sequences with N bases found and removed: "+str(ncount), function="remove N bases")
+
+    out, error = Popen(["Rscript", "/home/ubuntu/Marten/github_scripts/galaxy-tool-make-otu-table/dada2.R", outputFolder + "/combined_dada_filtered.fastq", outputFolder + "/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="dada2")
 
 def remove_single_clusters(outputFolder):

@@ -38,10 +38,7 @@ $output_bioom
 <inputs>
 <param format="zip" name="input" type="data" label="zip file containing fasta or fastq files"/>
 
-				<param name="input_type" type="select" multiple="false" label="Input type">
-					<option value="FASTA">fasta</option>
-					<option value="FASTQ" selected="true">fastq</option>
-				</param>
+
 	            <conditional name="algo">
 					<param name="cluster_algo" type="select" multiple="false" label="Clustering">
 						<option value="unoise" selected="true">UNOISE</option>
@@ -56,6 +53,14 @@ $output_bioom
 						<expand macro="vsearch_macro"/>
 					</when>
 				</conditional>
+				<!--
+	            <param name="input_type" type="select" multiple="false" label="Input type">
+					<option value="FASTA">fasta</option>
+					<option value="FASTQ" selected="true">fastq</option>
+				</param>
+				-->
+	            <!-- test parameter! -->
+				<param name="input_type" type="select" multiple="false" label="Input type" dynamic_options="input_type_filter(algo)"/>
 				<conditional name="output_type">
 					<param name="output_files" type="select" multiple="false" label="Output">
 						<option value="out_zip" selected="true">Output as zip</option>
@@ -66,7 +71,7 @@ $output_bioom
 					</when>
 				</conditional>
 </inputs>
-
+<code file="/home/ubuntu/testmapMarten/test/Marten/github_scripts/galaxy-tool-make-otu-table/dynamic_xml.py"/>
 	
 <outputs>
 	<data format="zip" type="data" name="output_zip" label="$input.display_name zip">

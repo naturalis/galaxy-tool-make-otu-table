@@ -67,6 +67,7 @@ def remove_files(outputFolder):
         call(["rm", outputFolder+"/combined.fa", outputFolder+"/uniques.fa"])
     if args.cluster == "dada2":
         call(["rm", outputFolder + "/combined_dada.fastq", outputFolder + "/combined_dada_filtered.fastq"])
+
 def vsearch_derep_fulllength(outputFolder):
     out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="derep_fulllength")

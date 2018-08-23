@@ -34,24 +34,32 @@ def check_if_fasta(file):
 
 def extension_check(outputFolder):
     files = [os.path.basename(x) for x in sorted(glob.glob(outputFolder + "/files/*"))]
+    fileFound = False
     for x in files:
         if args.input_type == "FASTQ":
             if os.path.splitext(x)[1].lower() == ".fastq" or os.path.splitext(x)[1] == ".fq":
                 fastafile = os.path.splitext(x)[0].translate((string.maketrans("-. ", "___"))) + ".fa"
                 error = Popen(["awk '{if(NR%4==1) {printf(\">%s\\n\",substr($0,2));} else if(NR%4==2) print;}' " + outputFolder + "/files/" + x + " > "+outputFolder+"/fasta/" + fastafile], stdout=PIPE, stderr=PIPE, shell=True).communicate()[1].strip()
                 admin_log(outputFolder, error=error, function="extension_check")
+                call(["sed -i '$a\\' "+outputFolder+"/fasta/" + fastafile], shell=True)
                 call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/"+fastafile+" >> " + outputFolder + "/combined.fa"], shell=True)
                 call(["cat " + outputFolder + "/files/"+x+" >> "+ outputFolder + "/combined_dada.fastq"], shell=True)
+                fileFound = True
             else:
                 admin_log(outputFolder, error=x+"\nWrong extension, no fastq file (.fastq, .fq) file will be ignored", function="extension_check")
         else:
             if check_if_fasta(outputFolder + "/files/" + x):
                 fastafile = os.path.splitext(x)[0].translate((string.maketrans("-. ", "___"))) + ".fa"
                 call(["mv", outputFolder + "/files/" + x, outputFolder + "/fasta/" + fastafile])
+                call(["sed -i '$a\\' " + outputFolder + "/fasta/" + fastafile], shell=True)
                 call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/" + fastafile + " >> " + outputFolder + "/combined.fa"], shell=True)
+                fileFound = True
             else:
                 admin_log(outputFolder, error="This is not a fasta file, file will be ignored: " + x, function="extension_check")
-    Popen(["rm", "-rf", outputFolder + "/files"], stdout=PIPE, stderr=PIPE)
+    #Popen(["rm", "-rf", outputFolder + "/files"], stdout=PIPE, stderr=PIPE)
+    if not fileFound:
+        admin_log(outputFolder, error="Tool stopped, no "+args.input_type+" files found", function="extension_check")
+        exit()
 
 def admin_log(outputFolder, out=None, error=None, function=""):
     with open(outputFolder + "/log.log", 'a') as adminlogfile:

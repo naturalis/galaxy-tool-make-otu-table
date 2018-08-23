@@ -22,7 +22,7 @@ then
 make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -cluster_id ${9} -cluster_size "${10}"
 fi
 
-usearch10.0.240 -otutab_stats $outlocation"/otutab.txt" -output $outlocation/"report.txt" 2>&1
+usearch10.0.240 -otutab_stats $outlocation"/otutab.txt" -output $outlocation/"report.txt" &> /dev/null
 echo "Otu table summary" >> $outlocation"/log.log"
 echo "============================================================" >> $outlocation"/log.log"
 cat $outlocation/"report.txt" >> $outlocation"/log.log" 

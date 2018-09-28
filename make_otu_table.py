@@ -81,12 +81,16 @@ def vsearch_derep_fulllength(outputFolder):
     admin_log(outputFolder, out=out, error=error, function="derep_fulllength")
 
 def usearch_cluster(outputFolder):
+    #sort by size
+    out, error = Popen(["usearch10.0.240", "-sortbysize", outputFolder+"/uniques.fa", "-fastaout", outputFolder+"/uniques_sorted.fa", "-minsize", "1"], stdout=PIPE, stderr=PIPE).communicate()
+    admin_log(outputFolder, out=out, error=error, function="sortbysize")
+
     if args.cluster == "cluster_otus":
-        out, error = Popen(["usearch10.0.240", "-cluster_otus", outputFolder+"/uniques.fa", "-minsize", "2", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["usearch10.0.240", "-cluster_otus", outputFolder+"/uniques_sorted.fa", "-minsize", "2", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="cluster_otus")
 
     if args.cluster == "unoise":
-        out, error = Popen(["usearch10.0.240","-unoise3", outputFolder+"/uniques.fa", "-unoise_alpha", args.unoise_alpha, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["usearch10.0.240","-unoise3", outputFolder+"/uniques_sorted.fa", "-unoise_alpha", args.unoise_alpha, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="unoise")
         count = 1
         with open(outputFolder + "/zotususearch.fa", "rU") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:
@@ -97,7 +101,7 @@ def usearch_cluster(outputFolder):
         Popen(["rm", outputFolder + "/zotususearch.fa"])
 
     if args.cluster == "vsearch":
-        out, error = Popen(["vsearch", "--uchime_denovo", outputFolder+"/uniques.fa", "--sizein", "--fasta_width", "0", "--nonchimeras", outputFolder+"/non_chimera.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["vsearch", "--uchime_denovo", outputFolder+"/uniques_sorted.fa", "--sizein", "--fasta_width", "0", "--nonchimeras", outputFolder+"/non_chimera.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch uchime")
         out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--sizeout", "--fasta_width", "0", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences_vsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch cluster")

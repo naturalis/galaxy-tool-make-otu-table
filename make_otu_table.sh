@@ -15,7 +15,7 @@ make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation
 fi
 if [ $3 == "unoise" ]
 then
-make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -a ${9}
+make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -a ${9} -unoise_minsize "${10}"
 fi
 if [ $3 == "vsearch" ]
 then

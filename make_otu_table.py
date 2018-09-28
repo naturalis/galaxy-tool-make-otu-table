@@ -25,6 +25,8 @@ requiredArguments.add_argument('-cluster_id', '--cluster_id', metavar='Minimal c
                                help='Minimal cluster identity percentage', required=False, nargs='?', default="97")
 requiredArguments.add_argument('-cluster_size', '--cluster_size', metavar='Minimal cluster size', dest='clustersize', type=str,
                                help='Minimal cluster size', required=False, nargs='?', default="1")
+requiredArguments.add_argument('-unoise_minsize', '--unoise_minsize', metavar='unoise minsize', dest='unoise_minsize', type=str,
+                               help='unoise minsize', required=False, nargs='?', default="1")
 args = parser.parse_args()
 
 def check_if_fasta(file):
@@ -90,7 +92,7 @@ def usearch_cluster(outputFolder):
         admin_log(outputFolder, out=out, error=error, function="cluster_otus")
 
     if args.cluster == "unoise":
-        out, error = Popen(["usearch10.0.240","-unoise3", outputFolder+"/uniques_sorted.fa", "-unoise_alpha", args.unoise_alpha, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["usearch10.0.240","-unoise3", outputFolder+"/uniques_sorted.fa", "-unoise_alpha", args.unoise_alpha, "-minsize", args.unoise_minsize, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="unoise")
         count = 1
         with open(outputFolder + "/zotususearch.fa", "rU") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:

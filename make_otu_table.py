@@ -91,7 +91,7 @@ def usearch_cluster(outputFolder):
     admin_log(outputFolder, out=out, error=error, function="sortbysize")
 
     if args.cluster == "cluster_otus":
-        out, error = Popen(["usearch11", "-cluster_otus", outputFolder+"/uniques_sorted.fa", "-minsize", "2", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["usearch11", "-cluster_otus", outputFolder+"/uniques_sorted.fa", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="cluster_otus")
 
     if args.cluster == "unoise":

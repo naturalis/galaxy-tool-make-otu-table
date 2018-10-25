@@ -25,7 +25,7 @@ requiredArguments.add_argument('-cluster_id', '--cluster_id', metavar='Minimal c
                                help='Minimal cluster identity percentage', required=False, nargs='?', default="97")
 requiredArguments.add_argument('-cluster_size', '--cluster_size', metavar='Minimal cluster size', dest='clustersize', type=str,
                                help='Minimal cluster size', required=False, nargs='?', default="1")
-requiredArguments.add_argument('-unoise_minsize', '--unoise_minsize', metavar='unoise minsize', dest='unoise_minsize', type=str,
+requiredArguments.add_argument('-abundance_minsize', metavar='minimal abundance', dest='abundance_minsize', type=str,
                                help='unoise minsize', required=False, nargs='?', default="1")
 args = parser.parse_args()
 
@@ -43,8 +43,11 @@ def extension_check(outputFolder):
                 fastafile = os.path.splitext(x)[0].translate((string.maketrans("-. ", "___"))) + ".fa"
                 error = Popen(["awk '{if(NR%4==1) {printf(\">%s\\n\",substr($0,2));} else if(NR%4==2) print;}' " + outputFolder + "/files/" + x + " > "+outputFolder+"/fasta/" + fastafile], stdout=PIPE, stderr=PIPE, shell=True).communicate()[1].strip()
                 admin_log(outputFolder, error=error, function="extension_check")
+                #add new line after last sequence
                 call(["sed -i '$a\\' "+outputFolder+"/fasta/" + fastafile], shell=True)
+                #Add sample name to fasta file like >[samplename].description
                 call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/"+fastafile+" >> " + outputFolder + "/combined.fa"], shell=True)
+                #DADA2 needs fastq files
                 call(["cat " + outputFolder + "/files/"+x+" >> "+ outputFolder + "/combined_dada.fastq"], shell=True)
                 fileFound = True
             else:
@@ -58,7 +61,7 @@ def extension_check(outputFolder):
                 fileFound = True
             else:
                 admin_log(outputFolder, error="This is not a fasta file, file will be ignored: " + x, function="extension_check")
-    #Popen(["rm", "-rf", outputFolder + "/files"], stdout=PIPE, stderr=PIPE)
+    Popen(["rm", "-rf", outputFolder + "/files"], stdout=PIPE, stderr=PIPE)
     if not fileFound:
         admin_log(outputFolder, error="Tool stopped, no "+args.input_type+" files found", function="extension_check")
         exit()
@@ -84,15 +87,15 @@ def vsearch_derep_fulllength(outputFolder):
 
 def usearch_cluster(outputFolder):
     #sort by size
-    out, error = Popen(["usearch10.0.240", "-sortbysize", outputFolder+"/uniques.fa", "-fastaout", outputFolder+"/uniques_sorted.fa", "-minsize", "1"], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["usearch11", "-sortbysize", outputFolder+"/uniques.fa", "-fastaout", outputFolder+"/uniques_sorted.fa", "-minsize", args.abundance_minsize], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="sortbysize")
 
     if args.cluster == "cluster_otus":
-        out, error = Popen(["usearch10.0.240", "-cluster_otus", outputFolder+"/uniques_sorted.fa", "-minsize", "2", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["usearch11", "-cluster_otus", outputFolder+"/uniques_sorted.fa", "-minsize", "2", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="cluster_otus")
 
     if args.cluster == "unoise":
-        out, error = Popen(["usearch10.0.240","-unoise3", outputFolder+"/uniques_sorted.fa", "-unoise_alpha", args.unoise_alpha, "-minsize", args.unoise_minsize, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["usearch11","-unoise3", outputFolder+"/uniques_sorted.fa", "-unoise_alpha", args.unoise_alpha, "-minsize", args.abundance_minsize, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="unoise")
         count = 1
         with open(outputFolder + "/zotususearch.fa", "rU") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:
@@ -105,10 +108,9 @@ def usearch_cluster(outputFolder):
     if args.cluster == "vsearch":
         out, error = Popen(["vsearch", "--uchime_denovo", outputFolder+"/uniques_sorted.fa", "--sizein", "--fasta_width", "0", "--nonchimeras", outputFolder+"/non_chimera.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch uchime")
-        out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--sizeout", "--fasta_width", "0", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences_vsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--fasta_width", "0", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch cluster")
         call(["rm", outputFolder + "/non_chimera.fa"])
-        remove_single_clusters(outputFolder)
 
 def dada2_cluster(outputFolder):
     ncount = 0
@@ -120,25 +122,8 @@ def dada2_cluster(outputFolder):
                 output.write(record.format("fastq"))
     admin_log(outputFolder, out="Sequences with N bases found and removed: "+str(ncount), function="remove N bases")
 
-    out, error = Popen(["Rscript", "/home/ubuntu/Marten/github_scripts/galaxy-tool-make-otu-table/dada2.R", outputFolder + "/combined_dada_filtered.fastq", outputFolder + "/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["Rscript", "/home/galaxy/Tools/galaxy-tool-make-otu-table/dada2.R", outputFolder + "/combined_dada_filtered.fastq", outputFolder + "/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="dada2")
-
-def remove_single_clusters(outputFolder):
-    otuCount = 0
-    singletonCount = 0
-    with open(outputFolder + "/otu_sequences.fa", "a") as otuFile:
-        for record in SeqIO.parse(outputFolder+"/otu_sequences_vsearch.fa", "fasta"):
-            size = str(record.description).split("size=")[1][:-1]
-            if int(size) > int(args.clustersize):
-                header = str(record.description).split(";size=")[0]
-                otuFile.write(">"+str(header)+"\n"+str(record.seq)+"\n")
-                otuCount += 1
-            else:
-                singletonCount += 1
-    #write to log
-    out = "Minimal otu size:" + str(3) + " \nOtu's:" + str(otuCount) + "\nSingletons:" + str(singletonCount)
-    admin_log(outputFolder, out=out, function="cluster size filtering")
-    call(["rm", outputFolder + "/otu_sequences_vsearch.fa"])
 
 def usearch_otu_tab(outputFolder):
     out, error = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.97", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()

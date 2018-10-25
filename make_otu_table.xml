@@ -17,8 +17,12 @@ $output_bioom
 	#end if
 	#if $algo.cluster_algo == "vsearch"
 		$algo.cluster_id
-	    $algo.cluster_size
+	    $algo.minsize
 	#end if
+	#if $algo.cluster_algo == "cluster_otus"
+	    $algo.minsize
+	#end if
+
 </command>
 <macros>
 	<macro name="output_file_selection">
@@ -30,17 +34,23 @@ $output_bioom
 	</macro>
 	<macro name="unoise_macro">
 		<param name="unoise_alpha" type="float" label="unoise_alpha"  value="2.0" min="0.1" max="20"/>
-		<param name="minsize" type="integer" label="Minimal accepted abundance before clustering" value="8" min="1" max="100"/>
+		<param name="minsize" type="integer" label="Minimal accepted abundance before clustering" value="8" min="2" max="100"/>
 	</macro>
 	<macro name="vsearch_macro">
 		<param name="cluster_id" type="float" label="Cluster id" value="0.97" min="0.1" max="1"/>
-		<param name="cluster_size" type="integer" label="Minimal cluster size" value="2" min="0" max="100"/>
+		<param name="minsize" type="integer" label="Minimal accepted abundance before clustering" value="8" min="2" max="100"/>
+	</macro>
+	<macro name="cluster_otus_macro">
+		<param name="minsize" type="integer" label="Minimal accepted abundance before clustering" value="8" min="2" max="100"/>
 	</macro>
 </macros>
 <inputs>
 <param format="zip" name="input" type="data" label="zip file containing fasta or fastq files"/>
-
-
+                <!--
+				<param name="input_type" type="select" multiple="false" label="Input type">
+					<option value="FASTA">fasta</option>
+					<option value="FASTQ" selected="true">fastq</option>
+				</param>-->
 	            <conditional name="algo">
 					<param name="cluster_algo" type="select" multiple="false" label="Clustering">
 						<option value="unoise" selected="true">UNOISE</option>
@@ -54,26 +64,22 @@ $output_bioom
 					<when value="vsearch">
 						<expand macro="vsearch_macro"/>
 					</when>
+					<when value="cluster_otus">
+						<expand macro="cluster_otus_macro"/>
+					</when>
 				</conditional>
-				<!--
-	            <param name="input_type" type="select" multiple="false" label="Input type">
-					<option value="FASTA">fasta</option>
-					<option value="FASTQ" selected="true">fastq</option>
-				</param>
-				-->
-	            <!-- test parameter! -->
-				<param name="input_type" type="select" multiple="false" label="Input type" dynamic_options="input_type_filter(algo)"/>
+	            <param name="input_type" type="select" multiple="false" label="Input type" dynamic_options="input_type_filter(algo)"/>
 				<conditional name="output_type">
 					<param name="output_files" type="select" multiple="false" label="Output">
-						<option value="out_zip" selected="true">Output as zip</option>
-						<option value="out_files">Output as seprated files</option>
+						<option value="out_zip">Output as zip</option>
+						<option value="out_files" selected="true">Output as seprated files</option>
 					</param>
 					<when value="out_files">
 						<expand macro="output_file_selection"/>
 					</when>
 				</conditional>
 </inputs>
-<code file="/home/ubuntu/testmapMarten/test/Marten/github_scripts/galaxy-tool-make-otu-table/dynamic_xml.py"/>
+<code file="/home/galaxy/Tools/galaxy-tool-make-otu-table/dynamic_xml.py"/>
 	
 <outputs>
 	<data format="zip" type="data" name="output_zip" label="$input.display_name zip">

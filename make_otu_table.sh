@@ -17,15 +17,19 @@ if [ $3 == "unoise" ]
 then
 make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -a ${9} -abundance_minsize "${10}"
 fi
+if [ $3 == "vsearch_unoise" ]
+then
+make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -a ${9} -abundance_minsize "${10}"
+fi
 if [ $3 == "vsearch" ]
 then
 make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -cluster_id ${9} -abundance_minsize "${10}" -cluster_size "${11}"
 fi
 
-usearch11 -otutab_stats $outlocation"/otutab.txt" -output $outlocation/"report.txt" &> /dev/null
+#usearch11 -otutab_stats $outlocation"/otutab.txt" -output $outlocation/"report.txt" &> /dev/null
 echo "Otu table summary" >> $outlocation"/log.log"
 echo "============================================================" >> $outlocation"/log.log"
-cat $outlocation/"report.txt" >> $outlocation"/log.log"
+#cat $outlocation/"report.txt" >> $outlocation"/log.log"
 
 #output files
 if [ $4 ]
@@ -49,4 +53,4 @@ then
     mv $outlocation"/bioom.json" $8 && [ -f $outlocation"/bioom.json" ]
 fi
 echo $outlocation
-#rm -rf $outlocation
+rm -rf $outlocation

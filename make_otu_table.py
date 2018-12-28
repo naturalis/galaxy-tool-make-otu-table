@@ -16,7 +16,7 @@ requiredArguments.add_argument('-i', '--input', metavar='input zipfile', dest='i
 requiredArguments.add_argument('-t', '--input_type', metavar='FASTQ or FASTA input', dest='input_type', type=str,
                                help='Sets the input type, FASTQ or FASTA', required=True)
 requiredArguments.add_argument('-c', '--cluster_command', metavar='otu or zotu(UNOISE)', dest='cluster', type=str,
-                               help='Choice of clustering, usearch -cluster_otus or unoise', required=True, choices=['unoise', 'cluster_otus', 'vsearch', 'dada2'])
+                               help='Choice of clustering, usearch -cluster_otus or unoise', required=True, choices=['unoise', 'cluster_otus', 'vsearch', 'dada2','vsearch_unoise'])
 requiredArguments.add_argument('-of', '--folder_output', metavar='folder output', dest='out_folder', type=str,
                                help='Folder name for the output files', required=True)
 requiredArguments.add_argument('-a', '--unoise_alpha', metavar='unoise_alpha', dest='unoise_alpha', type=str,
@@ -112,6 +112,19 @@ def usearch_cluster(outputFolder):
         admin_log(outputFolder, out=out, error=error, function="vsearch cluster")
         call(["rm", outputFolder + "/non_chimera.fa"])
 
+    if args.cluster == "vsearch_unoise":
+        out, error = Popen(["vsearch", "--cluster_unoise", outputFolder+"/uniques_sorted.fa", "--unoise_alpha", args.unoise_alpha,"--minsize", args.abundance_minsize, "--centroids", outputFolder+"/zotusvsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        admin_log(outputFolder, out=out, error=error, function="vsearch unoise")
+        out, error = Popen(["vsearch", "--uchime3_denovo", outputFolder+"/zotusvsearch.fa","--fasta_width", "0", "--nonchimeras", outputFolder + "/otu_sequences_nochime.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        admin_log(outputFolder, out=out, error=error, function="vsearch uchime_denovo3")
+        count = 1
+        with open(outputFolder + "/otu_sequences_nochime.fa", "rU") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:
+            for record in SeqIO.parse(handle, "fasta"):
+                newotu.write(">Otu" + str(count) + "\n")
+                newotu.write(str(record.seq) + "\n")
+                count += 1
+        Popen(["rm", outputFolder + "/otu_sequences_nochime.fa"])
+
 def dada2_cluster(outputFolder):
     ncount = 0
     with open(outputFolder + "/combined_dada.fastq", "rU") as handle, open(outputFolder +"/combined_dada_filtered.fastq", "a") as output:
@@ -171,4 +184,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -2,7 +2,7 @@
 <description>Make an otu or zotu table</description>
 <command interpreter="bash">
 make_otu_table.sh
-$input 
+$input
 $input_type
 $algo.cluster_algo
 <!--output files-->
@@ -14,6 +14,10 @@ $output_bioom
 	#if $algo.cluster_algo == "unoise"
 		$algo.unoise_alpha
 	    $algo.minsize
+	#end if
+	#if $algo.cluster_algo == "vsearch_unoise"
+		$algo.unoise_alpha
+			$algo.minsize
 	#end if
 	#if $algo.cluster_algo == "vsearch"
 		$algo.cluster_id
@@ -33,6 +37,10 @@ $output_bioom
 		<param name="output_selection_file_zip" type="boolean" label="zip file" checked="no" truevalue="yes" falsevalue="no"/>
 	</macro>
 	<macro name="unoise_macro">
+		<param name="unoise_alpha" type="float" label="unoise_alpha"  value="2.0" min="0.1" max="20"/>
+		<param name="minsize" type="integer" label="Minimal accepted abundance before clustering" value="8" min="2" max="100"/>
+	</macro>
+	<macro name="vsearch_unoise_macro">
 		<param name="unoise_alpha" type="float" label="unoise_alpha"  value="2.0" min="0.1" max="20"/>
 		<param name="minsize" type="integer" label="Minimal accepted abundance before clustering" value="8" min="2" max="100"/>
 	</macro>
@@ -57,6 +65,7 @@ $output_bioom
 						<option value="dada2">DADA2</option>
 						<option value="cluster_otus">cluster_otus (UPARSE)</option>
 						<option value="vsearch">VSEARCH</option>
+						<option value="vsearch_unoise">VSEARCH unoise</option>
 					</param>
 					<when value="unoise">
 						<expand macro="unoise_macro"/>
@@ -66,6 +75,9 @@ $output_bioom
 					</when>
 					<when value="cluster_otus">
 						<expand macro="cluster_otus_macro"/>
+					</when>
+					<when value="vsearch_unoise">
+						<expand macro="vsearch_unoise_macro"/>
 					</when>
 				</conditional>
 	            <param name="input_type" type="select" multiple="false" label="Input type" dynamic_options="input_type_filter(algo)"/>
@@ -80,7 +92,7 @@ $output_bioom
 				</conditional>
 </inputs>
 <code file="/home/galaxy/Tools/galaxy-tool-make-otu-table/dynamic_xml.py"/>
-	
+
 <outputs>
 	<data format="zip" type="data" name="output_zip" label="$input.display_name zip">
 		<filter>output_type['output_files'] == "out_zip" or output_type['output_selection_file_zip']</filter>

@@ -13,10 +13,13 @@ sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 **vsearch**<br />
 ```
 cd /home/galaxy/Tools/
-wget https://github.com/torognes/vsearch/releases/download/v2.8.1/vsearch-2.8.1-linux-x86_64.tar.gz
-tar xzf vsearch-2.8.1-linux-x86_64.tar.gz
-sudo rm vsearch-2.8.1-linux-x86_64.tar.gz
-sudo ln -s /home/galaxy/Tools/vsearch-2.8.1-linux-x86_64/bin/vsearch /usr/local/bin/vsearch
+wget https://github.com/torognes/vsearch/archive/v2.10.3.tar.gz
+tar xzf v2.10.3.tar.gz
+cd vsearch-2.10.3
+./autogen.sh
+./configure
+make
+make install  # as root or sudo make install
 ```
 **R**<br />
 ```

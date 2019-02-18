@@ -87,7 +87,7 @@ def vsearch_derep_fulllength(outputFolder):
 
 def usearch_cluster(outputFolder):
     #sort by size
-    out, error = Popen(["vsearch", "--sortbysize", outputFolder+"/uniques.fa", "-fastaout", outputFolder+"/uniques_sorted.fa", "-minsize", args.abundance_minsize], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["vsearch", "--sortbysize", outputFolder+"/uniques.fa", "--output", outputFolder+"/uniques_sorted.fa", "--minsize", args.abundance_minsize], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="sortbysize")
 
     if args.cluster == "cluster_otus":

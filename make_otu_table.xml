@@ -6,11 +6,20 @@ $input
 $input_type
 $algo.cluster_algo
 <!--output files-->
-$output_zip
-$output_log
-$output_otu_sequence
-$output_otutab
-$output_bioom
+#if not $output_label
+	$output_zip
+	$output_log
+	$output_otu_sequence
+	$output_otutab
+	$output_bioom
+#end if
+#if $output_label
+	$output_zip_custom_name
+	$output_log_custom_name
+	$output_otu_sequence_custom_name
+	$output_otutab_custom_name
+	$output_bioom_custom_name
+#end if
 	#if $algo.cluster_algo == "unoise"
 		$algo.unoise_alpha
 	    $algo.minsize
@@ -90,24 +99,42 @@ $output_bioom
 						<expand macro="output_file_selection"/>
 					</when>
 				</conditional>
+				<param name="output_label" type="text" value="History" label="History output name" />
 </inputs>
 <code file="/home/galaxy/Tools/galaxy-tool-make-otu-table/dynamic_xml.py"/>
 
 <outputs>
 	<data format="zip" type="data" name="output_zip" label="$input.display_name zip">
-		<filter>output_type['output_files'] == "out_zip" or output_type['output_selection_file_zip']</filter>
+		<filter>output_type['output_files'] == "out_zip" or output_type['output_selection_file_zip'] and output_label == ''</filter>
 	</data>
 	<data format="txt" name="output_log" label="$input.display_name log">
-		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_log']</filter>
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_log'] and output_label == ''</filter>
 	</data>
-	<data format="fasta" name="output_otu_sequence" label="$input.display_name sequence">
-		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otu_sequence']</filter>
+	<data format="fasta" name="output_otu_sequence" label="$input.display_name sequences">
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otu_sequence'] and output_label == ''</filter>
 	</data>
 	<data format="tabular" name="output_otutab" label="$input.display_name otu table">
-		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otutab']</filter>
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otutab'] and output_label == ''</filter>
 	</data>
 	<data format="txt" name="output_bioom" label="$input.display_name bioom file">
-		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_bioom']</filter>
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_bioom'] and output_label == ''</filter>
+	</data>
+
+	<!-- CUSTOM OUTPUT NAME -->
+	<data format="zip" type="data" name="output_zip_custom_name" label="$output_label zip">
+		<filter>output_type['output_files'] == "out_zip" or output_type['output_selection_file_zip'] and output_label != ''</filter>
+	</data>
+	<data format="txt" name="output_log_custom_name" label="$output_label log">
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_log'] and output_label != ''</filter>
+	</data>
+	<data format="fasta" name="output_otu_sequence_custom_name" label="$output_label sequences">
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otu_sequence'] and output_label != ''</filter>
+	</data>
+	<data format="tabular" name="output_otutab_custom_name" label="$output_label otu table">
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_otutab'] and output_label != ''</filter>
+	</data>
+	<data format="txt" name="output_bioom_custom_name" label="$output_label bioom file">
+		<filter>output_type['output_files'] == "out_files" and output_type['output_selection_bioom'] and output_label != ''</filter>
 	</data>
 </outputs>
 <tests>

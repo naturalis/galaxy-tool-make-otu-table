@@ -5,6 +5,7 @@
 #location for the testserver
 #outlocation=$(mktemp -d /media/GalaxyData/files/XXXXXX)
 outlocation=$(mktemp -d /home/galaxy/ExtraRef/XXXXXX)
+
 if [ $3 == "cluster_otus" ]
 then
 make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -abundance_minsize "${9}"
@@ -27,8 +28,8 @@ make_otu_table.py -i $1 -t $2 -c $3 -of $outlocation -cluster_id ${9} -abundance
 fi
 
 #usearch11 -otutab_stats $outlocation"/otutab.txt" -output $outlocation/"report.txt" &> /dev/null
-echo "Otu table summary" >> $outlocation"/log.log"
-echo "============================================================" >> $outlocation"/log.log"
+#echo "Otu table summary" >> $outlocation"/log.log"
+#echo "============================================================" >> $outlocation"/log.log"
 #cat $outlocation/"report.txt" >> $outlocation"/log.log"
 
 #output files
@@ -52,5 +53,4 @@ if [ $8 ] && [ -f $outlocation"/bioom.json" ] && [ -f $outlocation"/bioom.json" 
 then
     mv $outlocation"/bioom.json" $8 && [ -f $outlocation"/bioom.json" ]
 fi
-echo $outlocation
 rm -rf $outlocation

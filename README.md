@@ -10,6 +10,9 @@ sudo wget [your usearch licence]
 mv [your usearch licence] usearch11
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
+**VSEARCH**<br />
+vsearch will be automaticly installed with conda
+<br />
 **R**<br />
 R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br />
 <br />
@@ -26,13 +29,6 @@ sudo git clone https://github.com/naturalis/galaxy-tool-make-otu-table
 ```
 ```
 sudo chmod 777 galaxy-tool-make-otu-table/make_otu_table.py
-```
-```
-sudo ln -s /home/galaxy/Tools/galaxy-tool-make-otu-table/make_otu_table.py /usr/local/bin/make_otu_table.py
-```
-```
-sudo cp galaxy-tool-make-otu-table/make_otu_table.sh /home/galaxy/galaxy/tools/identify/make_otu_table.sh
-sudo cp galaxy-tool-make-otu-table/make_otu_table.xml /home/galaxy/galaxy/tools/identify/make_otu_table.xml
 ```
 Add the following line to /home/galaxy/galaxy/config/tool_conf.xml
 ```

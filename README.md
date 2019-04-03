@@ -13,7 +13,7 @@ sudo chmod 777 usearch/usearch11
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 **VSEARCH**<br />
-vsearch will be automaticly installed with conda<br />
+vsearch will be automatically installed with conda<br />
 <br />
 **R**<br />
 R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br />
@@ -27,14 +27,14 @@ Installing the tool for use in Galaxy
 cd /home/galaxy/Tools
 ```
 ```
-sudo git clone https://github.com/naturalis/galaxy-tool-make-otu-table
+git clone https://github.com/naturalis/galaxy-tool-make-otu-table
 ```
 ```
-sudo chmod 777 galaxy-tool-make-otu-table/make_otu_table.py
+chmod 777 galaxy-tool-make-otu-table/make_otu_table.py
 ```
 Add the following line to /home/galaxy/galaxy/config/tool_conf.xml
 ```
-<tool file="identify/make_otu_table.xml" />
+<tool file="/home/galaxy/Tools/galaxy-tool-make-otu-table/make_otu_table.xml" />
 ```
 ## Source
 Rognes T, Flouri T, Nichols B, Quince C, Mahé F. (2016) VSEARCH: a versatile open source tool for metagenomics. PeerJ 4:e2584. doi: 10.7717/peerj.2584

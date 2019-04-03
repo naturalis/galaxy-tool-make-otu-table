@@ -11,7 +11,7 @@ mv [your usearch licence] usearch11
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 **VSEARCH**<br />
-vsearch will be automaticly installed with conda
+vsearch will be automaticly installed with conda<br />
 <br />
 **R**<br />
 R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br />

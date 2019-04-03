@@ -12,9 +12,10 @@ sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 **R**<br />
 R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br />
+<br />
 **DADA2**<br />
 DADA2 is temporarly disabled.
-
+<br />
 ### Installing
 Installing the tool for use in Galaxy
 ```

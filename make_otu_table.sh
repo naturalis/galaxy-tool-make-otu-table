@@ -19,6 +19,10 @@ if [ $3 == "vsearch_unoise" ]
 then
 python $SCRIPTDIR"/make_otu_table.py" -i $1 -t $2 -c $3 -of $outlocation -a ${9} -abundance_minsize "${10}"
 fi
+if [ $3 == "vsearch_unoise_no_chimera_check" ]
+then
+python $SCRIPTDIR"/make_otu_table.py" -i $1 -t $2 -c $3 -of $outlocation -a ${9} -abundance_minsize "${10}"
+fi
 if [ $3 == "vsearch" ]
 then
 python $SCRIPTDIR"/make_otu_table.py" -i $1 -t $2 -c $3 -of $outlocation -cluster_id ${9} -abundance_minsize "${10}" -cluster_size "${11}"

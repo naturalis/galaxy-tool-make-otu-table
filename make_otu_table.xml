@@ -1,11 +1,17 @@
 <tool id="make_otu_table" name="Make otu table">
 <description>Make an otu or zotu table</description>
-<command interpreter="bash">
-make_otu_table.sh
+    <requirements>
+        <requirement type="package" version="2.7">python</requirement>
+	<requirement type="package">biopython</requirement>
+	<requirement type="package">vsearch</requirement>
+
+    </requirements>
+<command>
+<![CDATA[
+bash '$__tool_directory__/make_otu_table.sh'
 $input
 $input_type
 $algo.cluster_algo
-<!--output files-->
 #if not $output_label
 	$output_zip
 	$output_log
@@ -35,7 +41,7 @@ $algo.cluster_algo
 	#if $algo.cluster_algo == "cluster_otus"
 	    $algo.minsize
 	#end if
-
+	]]>
 </command>
 <macros>
 	<macro name="output_file_selection">
@@ -71,7 +77,7 @@ $algo.cluster_algo
 	            <conditional name="algo">
 					<param name="cluster_algo" type="select" multiple="false" label="Clustering">
 						<option value="unoise" selected="true">UNOISE</option>
-						<option value="dada2">DADA2</option>
+						<!-- <option value="dada2">DADA2</option> -->
 						<option value="cluster_otus">cluster_otus (UPARSE)</option>
 						<option value="vsearch">VSEARCH</option>
 						<option value="vsearch_unoise">VSEARCH unoise</option>
@@ -144,6 +150,5 @@ $algo.cluster_algo
 </test>
 </tests>
 <help>
-Pipeline for making otu tables
 </help>
 </tool>

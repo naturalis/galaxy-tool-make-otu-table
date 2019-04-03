@@ -5,6 +5,7 @@ A pipeline for clustering and making otu tables in galaxy. This repo can be used
 
 **usearch**<br />
 ```
+mkdir /home/galaxy/Tools/usearch 
 cd /home/galaxy/Tools/usearch
 sudo wget [your usearch licence]
 mv [your usearch licence] usearch11

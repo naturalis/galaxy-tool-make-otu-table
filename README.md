@@ -9,6 +9,7 @@ mkdir /home/galaxy/Tools/usearch
 cd /home/galaxy/Tools/usearch
 wget [your usearch licence]
 mv [your usearch licence] usearch11
+sudo chmod 777 usearch/usearch11
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 **VSEARCH**<br />

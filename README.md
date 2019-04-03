@@ -1,5 +1,5 @@
 # galaxy-tool-make-otu-table
-A pipeline for clustering and making otu tables
+A pipeline for clustering and making otu tables in galaxy. This repo can be used for the new (03-04-2019) galaxy 19.01 Naturalis server. The old galaxy 16.04 server is not supported anymore with this pipeline.
 ## Getting Started
 ### Prerequisites
 
@@ -10,23 +10,11 @@ sudo wget [your usearch licence]
 mv [your usearch licence] usearch11
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
-**vsearch**<br />
-```
-cd /home/galaxy/Tools/
-wget https://github.com/torognes/vsearch/archive/v2.10.3.tar.gz
-tar xzf v2.10.3.tar.gz
-cd vsearch-2.10.3
-./autogen.sh
-./configure
-make
-make install  # as root or sudo make install
-```
 **R**<br />
-```
-```
+R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. 
 **DADA2**<br />
-```
-```
+DADA2 is temporarly disabled.
+
 ### Installing
 Installing the tool for use in Galaxy
 ```

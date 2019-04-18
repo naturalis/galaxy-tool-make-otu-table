@@ -1,5 +1,7 @@
 <tool id="make_otu_table" name="Make otu table">
+<!--
 <description>Make an otu or zotu table</description>
+-->
     <requirements>
         <requirement type="package" version="2.7">python</requirement>
 	<requirement type="package">biopython</requirement>
@@ -159,4 +161,9 @@ $algo.cluster_algo
 </tests>
 <help>
 </help>
+<citations>
+	<citation type="doi">10.7717/peerj.2584</citation>
+	<citation type="doi">10.1101/081257</citation>
+	<citation type="doi">10.1038/nmeth.2604</citation>
+</citations>
 </tool>

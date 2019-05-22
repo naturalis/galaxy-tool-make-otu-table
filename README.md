@@ -4,12 +4,16 @@ A pipeline for clustering and making otu tables in galaxy. This repo can be used
 ### Prerequisites
 
 **usearch**<br />
+(user: **galaxy**)  
 ```
 mkdir /home/galaxy/Tools/usearch 
 cd /home/galaxy/Tools/usearch
 wget [your usearch licence]
 mv [your usearch licence] usearch11
-sudo chmod 777 usearch/usearch11
+chmod 777 /home/galaxy/Tools/usearch/usearch11
+```
+(user: **ubuntu**)  
+```
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 **VSEARCH**<br />

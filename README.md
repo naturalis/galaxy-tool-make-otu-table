@@ -3,7 +3,7 @@ A pipeline for clustering and making otu tables in galaxy. This repo can be used
 ## Getting Started
 ### Prerequisites
 
-**usearch**<br />
+**USEARCH**<br />
 (user: **galaxy**)  
 ```
 mkdir /home/galaxy/Tools/usearch 
@@ -25,7 +25,8 @@ R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br
 **DADA2**<br />
 DADA2 is temporarly disabled.
 <br />
-### Installing
+### Installing  
+(user: **galaxy**) 
 Installing the tool for use in Galaxy
 ```
 cd /home/galaxy/Tools

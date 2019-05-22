@@ -26,7 +26,7 @@ R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br
 DADA2 is temporarly disabled.
 <br />
 ### Installing  
-(user: **galaxy**) 
+(user: **galaxy**)  
 Installing the tool for use in Galaxy
 ```
 cd /home/galaxy/Tools

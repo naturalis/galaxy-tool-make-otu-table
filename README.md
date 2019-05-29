@@ -17,11 +17,11 @@ chmod 777 /home/galaxy/Tools/usearch/usearch11
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 The following tools/packages are needed but included in the conda environment (make_otu_table_environment.yml)
-* **VSEARCH**<br />
-* **R**<br />
-* **DADA2**<br />
-* python2
-* biopython
+* **VSEARCH**
+* **R**<
+* **DADA2**
+* **python2**
+* **biopython**
 ### Installing  
 (user: **galaxy**)  
 Installing the tool for use in Galaxy

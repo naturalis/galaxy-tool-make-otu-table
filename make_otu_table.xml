@@ -1,10 +1,7 @@
 <tool id="make_otu_table" name="Make otu table">
 <description>Make an otu or zotu table</description>
     <requirements>
-        <requirement type="package" version="2.7">python</requirement>
-	<requirement type="package">biopython</requirement>
-	<requirement type="package">vsearch</requirement>
-
+        <requirement type="package" version="1.0.0">dada2env</requirement>
     </requirements>
 <command>
 <![CDATA[
@@ -81,7 +78,7 @@ $algo.cluster_algo
 	            <conditional name="algo">
 					<param name="cluster_algo" type="select" multiple="false" label="Clustering">
 						<option value="unoise" selected="true">UNOISE</option>
-						<!-- <option value="dada2">DADA2</option> -->
+						<option value="dada2">DADA2</option>
 						<option value="cluster_otus">cluster_otus (UPARSE)</option>
 						<option value="vsearch">VSEARCH</option>
 						<option value="vsearch_unoise">VSEARCH unoise</option>

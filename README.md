@@ -16,15 +16,12 @@ chmod 777 /home/galaxy/Tools/usearch/usearch11
 ```
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
-**VSEARCH**<br />
-vsearch will be automatically installed with conda<br />
-<br />
-**R**<br />
-R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br />
-<br />
-**DADA2**<br />
-DADA2 is temporarly disabled.
-<br />
+The following tools/packages are needed but included in the conda environment (make_otu_table_environment.yml)
+* **VSEARCH**<br />
+* **R**<br />
+* **DADA2**<br />
+* python2
+* biopython
 ### Installing  
 (user: **galaxy**)  
 Installing the tool for use in Galaxy

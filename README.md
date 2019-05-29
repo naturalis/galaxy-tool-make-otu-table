@@ -3,13 +3,17 @@ A pipeline for clustering and making otu tables in galaxy. This repo can be used
 ## Getting Started
 ### Prerequisites
 
-**usearch**<br />
+**USEARCH**<br />
+(user: **galaxy**)  
 ```
 mkdir /home/galaxy/Tools/usearch 
 cd /home/galaxy/Tools/usearch
 wget [your usearch licence]
 mv [your usearch licence] usearch11
-sudo chmod 777 usearch/usearch11
+chmod 777 /home/galaxy/Tools/usearch/usearch11
+```
+(user: **ubuntu**)  
+```
 sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 **VSEARCH**<br />
@@ -21,7 +25,8 @@ R is needed for DADA2, due to upgrading galaxy DADA2 is temporarly disabled. <br
 **DADA2**<br />
 DADA2 is temporarly disabled.
 <br />
-### Installing
+### Installing  
+(user: **galaxy**)  
 Installing the tool for use in Galaxy
 ```
 cd /home/galaxy/Tools

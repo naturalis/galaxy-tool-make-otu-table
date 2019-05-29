@@ -48,8 +48,8 @@ If you need to create the conda environment manally:
 conda config --add channels conda-forge
 conda config --add channels bioconda
 conda config --add channels defaults
-conda create -n dada2-1.10 python=3 anaconda
-conda activate dada2-1.10
+conda create -n dada2env python=3 anaconda
+conda activate dada2env
 conda install -c bioconda bioconductor-dada2=1.10.0
 conda install python=2.7.16
 conda install biopython

@@ -18,10 +18,11 @@ sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
 ```
 The following tools/packages are needed but included in the conda environment (make_otu_table_environment.yml)
 * **VSEARCH**
-* **R**<
+* **R**
 * **DADA2**
 * **python2**
 * **biopython**
+
 ### Installing  
 (user: **galaxy**)  
 Installing the tool for use in Galaxy
@@ -33,6 +34,10 @@ git clone https://github.com/naturalis/galaxy-tool-make-otu-table
 ```
 ```
 chmod 777 galaxy-tool-make-otu-table/make_otu_table.py
+```
+Create the conda environment
+```
+conda env create -f make_otu_table_environment.yml
 ```
 Add the following line to /home/galaxy/galaxy/config/tool_conf.xml
 ```

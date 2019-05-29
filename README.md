@@ -51,8 +51,10 @@ conda config --add channels defaults
 conda create -n dada2-1.10 python=3 anaconda
 conda activate dada2-1.10
 conda install -c bioconda bioconductor-dada2=1.10.0
-conda install python=2.7 biopython
+conda install python=2.7.16
+conda install biopython
 conda install vsearch
+conda deactivate
 ```
 ## Source
 Rognes T, Flouri T, Nichols B, Quince C, Mahé F. (2016) VSEARCH: a versatile open source tool for metagenomics. PeerJ 4:e2584. doi: 10.7717/peerj.2584

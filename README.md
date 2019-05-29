@@ -43,6 +43,17 @@ Add the following line to /home/galaxy/galaxy/config/tool_conf.xml
 ```
 <tool file="/home/galaxy/Tools/galaxy-tool-make-otu-table/make_otu_table.xml" />
 ```
+If you need to create the conda environment manally:
+```
+conda config --add channels conda-forge
+conda config --add channels bioconda
+conda config --add channels defaults
+conda create -n dada2-1.10 python=3 anaconda
+conda activate dada2-1.10
+conda install -c bioconda bioconductor-dada2=1.10.0
+conda install python=2.7 biopython
+conda install vsearch
+```
 ## Source
 Rognes T, Flouri T, Nichols B, Quince C, Mahé F. (2016) VSEARCH: a versatile open source tool for metagenomics. PeerJ 4:e2584. doi: 10.7717/peerj.2584
 

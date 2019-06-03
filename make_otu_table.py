@@ -82,12 +82,12 @@ def remove_files(outputFolder):
         call(["rm", outputFolder + "/combined_dada.fastq", outputFolder + "/combined_dada_filtered.fastq"])
 
 def vsearch_derep_fulllength(outputFolder):
-    out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "--minseqlength", "1", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="derep_fulllength")
 
 def usearch_cluster(outputFolder):
     #sort by size
-    out, error = Popen(["vsearch", "--sortbysize", outputFolder+"/uniques.fa", "--output", outputFolder+"/uniques_sorted.fa", "--minsize", args.abundance_minsize], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["vsearch", "--sortbysize", outputFolder+"/uniques.fa", "--output", outputFolder+"/uniques_sorted.fa","--minseqlength", "1","--minsize", args.abundance_minsize], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="sortbysize")
 
     if args.cluster == "cluster_otus":
@@ -108,12 +108,12 @@ def usearch_cluster(outputFolder):
     if args.cluster == "vsearch":
         out, error = Popen(["vsearch", "--uchime_denovo", outputFolder+"/uniques_sorted.fa", "--sizein", "--fasta_width", "0", "--nonchimeras", outputFolder+"/non_chimera.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch uchime")
-        out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--fasta_width", "0", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--fasta_width", "0","--minseqlength", "1", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch cluster")
         call(["rm", outputFolder + "/non_chimera.fa"])
 
     if args.cluster == "vsearch_unoise":
-        out, error = Popen(["vsearch", "--cluster_unoise", outputFolder+"/uniques_sorted.fa", "--unoise_alpha", args.unoise_alpha,"--minsize", args.abundance_minsize, "--centroids", outputFolder+"/zotusvsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
+        out, error = Popen(["vsearch", "--cluster_unoise", outputFolder+"/uniques_sorted.fa", "--unoise_alpha", args.unoise_alpha,"--minsize", args.abundance_minsize,"--minseqlength", "1", "--centroids", outputFolder+"/zotusvsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch unoise")
         out, error = Popen(["vsearch", "--uchime3_denovo", outputFolder+"/zotusvsearch.fa","--fasta_width", "0", "--nonchimeras", outputFolder + "/otu_sequences_nochime.fa"], stdout=PIPE, stderr=PIPE).communicate()
         admin_log(outputFolder, out=out, error=error, function="vsearch uchime_denovo3")
@@ -152,7 +152,7 @@ def dada2_cluster(outputFolder):
     admin_log(outputFolder, out=out, error=error, function="dada2")
 
 def usearch_otu_tab(outputFolder):
-    out, error = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.97", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
+    out, error = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.97", "--minseqlength", "1", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
     admin_log(outputFolder, out=out, error=error, function="otutab")
 
 def zip_it_up(outputFolder):

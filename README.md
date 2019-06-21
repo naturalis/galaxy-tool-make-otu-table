@@ -56,6 +56,17 @@ conda install biopython
 conda install vsearch
 conda deactivate
 ```
+## Workflow
+On the following graph you can see the global workflow:
+<br />
+
+![flow](https://github.com/naturalis/galaxy-tool-make-otu-table/blob/master/img/make_otu_table.png)
+
+<br />
+**1**<br />
+
+
+
 ## Source
 Rognes T, Flouri T, Nichols B, Quince C, Mahé F. (2016) VSEARCH: a versatile open source tool for metagenomics. PeerJ 4:e2584. doi: 10.7717/peerj.2584
 

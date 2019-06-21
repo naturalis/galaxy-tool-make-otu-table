@@ -79,11 +79,11 @@ vsearch --derep_fulllength <combined_sequences.fa> --output <uniques.fa> --minse
 **3**<br />
 The sequences will be sorted on abundance.
 The command that is being used:
-
 ```
 vsearch --sortbysize uniques.fa --output uniques_sorted.fa --minseqlength 1 --minsize <your min size>
 ```
 <br />
+
 
 
 ## Source

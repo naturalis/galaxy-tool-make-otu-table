@@ -64,7 +64,7 @@ On the following graph you can see the global workflow:
 
 <br />
 
-**1**<br />
+### **1**<br />
 DADA2 is following a slightly different path. The file that is being used to do the analysis can be found here: https://github.com/naturalis/galaxy-tool-make-otu-table/blob/master/dada2.R
 <br />
 **2**<br />

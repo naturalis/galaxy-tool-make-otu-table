@@ -27,6 +27,10 @@ if [ $3 == "vsearch" ]
 then
 python $SCRIPTDIR"/make_otu_table.py" -i $1 -t $2 -c $3 -of $outlocation -cluster_id ${9} -abundance_minsize "${10}" -cluster_size "${11}"
 fi
+if [ $3 == "vsearch_no_chimera_check" ]
+then
+python $SCRIPTDIR"/make_otu_table.py" -i $1 -t $2 -c $3 -of $outlocation -cluster_id ${9} -abundance_minsize "${10}" -cluster_size "${11}"
+fi
 
 #usearch11 -otutab_stats $outlocation"/otutab.txt" -output $outlocation/"report.txt" &> /dev/null
 #echo "Otu table summary" >> $outlocation"/log.log"

@@ -41,6 +41,10 @@ $algo.cluster_algo
 		$algo.cluster_id
 	    $algo.minsize
 	#end if
+  #if $algo.cluster_algo == "vsearch_no_chimera_check"
+    $algo.cluster_id
+      $algo.minsize
+  #end if
 	#if $algo.cluster_algo == "cluster_otus"
 	    $algo.minsize
 	#end if
@@ -82,8 +86,9 @@ $algo.cluster_algo
 						<option value="unoise" selected="true">UNOISE</option>
 						<option value="dada2">DADA2</option>
 						<option value="cluster_otus">cluster_otus (UPARSE)</option>
-						<option value="vsearch">VSEARCH</option>
-						<option value="vsearch_unoise">VSEARCH unoise</option>
+						<option value="vsearch">VSEARCH with --uchime_denovo</option>
+            <option value="vsearch_no_chimera_check">VSEARCH without chimera checking</option>
+						<option value="vsearch_unoise">VSEARCH unoise with --uchime3_denovo</option>
 						<option value="vsearch_unoise_no_chimera_check">VSEARCH unoise without chimera checking</option>
 					</param>
 					<when value="unoise">
@@ -92,6 +97,9 @@ $algo.cluster_algo
 					<when value="vsearch">
 						<expand macro="vsearch_macro"/>
 					</when>
+          <when value="vsearch_no_chimera_check">
+            <expand macro="vsearch_macro"/>
+          </when>
 					<when value="cluster_otus">
 						<expand macro="cluster_otus_macro"/>
 					</when>
@@ -112,7 +120,7 @@ $algo.cluster_algo
 						<expand macro="output_file_selection"/>
 					</when>
 				</conditional>
-				<param name="output_label" type="text" value="History" label="History output name" />
+				<param name="output_label" type="text" value="" label="History output name" />
 </inputs>
 <code file="/home/galaxy/Tools/galaxy-tool-make-otu-table/dynamic_xml.py"/>
 

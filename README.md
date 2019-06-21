@@ -63,8 +63,27 @@ On the following graph you can see the global workflow:
 ![flow](https://github.com/naturalis/galaxy-tool-make-otu-table/blob/master/img/make_otu_table.png)
 
 <br />
-**1**<br />
 
+**1**<br />
+DADA2 is following a slightly different path. The file that is being used to do the analysis can be found here: https://github.com/naturalis/galaxy-tool-make-otu-table/blob/master/dada2.R
+<br />
+
+**2**<br />
+Dereplication is done on one file containing all the sequences from the input zip file. With dereplication all duplicates will be removed and the amount(abundance) of the duplicates will be added to the fasta header. This abundance is needed for the other steps.
+The command that is being used:
+```
+vsearch --derep_fulllength <combined_sequences.fa> --output <uniques.fa> --minseqlength 1 -sizeout
+```
+<br >
+
+**3**<br />
+The sequences will be sorted on abundance.
+The command that is being used:
+
+```
+vsearch --sortbysize uniques.fa --output uniques_sorted.fa --minseqlength 1 --minsize <your min size>
+```
+<br />
 
 
 ## Source

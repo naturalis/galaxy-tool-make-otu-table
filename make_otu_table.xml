@@ -86,9 +86,9 @@ $algo.cluster_algo
 						<option value="unoise" selected="true">UNOISE</option>
 						<option value="dada2">DADA2</option>
 						<option value="cluster_otus">cluster_otus (UPARSE)</option>
-						<option value="vsearch">VSEARCH with --uchime_denovo</option>
-            <option value="vsearch_no_chimera_check">VSEARCH without chimera checking</option>
-						<option value="vsearch_unoise">VSEARCH unoise with --uchime3_denovo</option>
+						<option value="vsearch">VSEARCH with chimera checking (--uchime_denovo)</option>
+                                                <option value="vsearch_no_chimera_check">VSEARCH without chimera checking</option>
+						<option value="vsearch_unoise">VSEARCH unoise with chimera checking (--uchime3_denovo)</option>
 						<option value="vsearch_unoise_no_chimera_check">VSEARCH unoise without chimera checking</option>
 					</param>
 					<when value="unoise">

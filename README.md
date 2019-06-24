@@ -83,7 +83,7 @@ vsearch --sortbysize uniques.fa --output uniques_sorted.fa --minseqlength 1 --mi
 If the user choose UNOISE as clustering method UNOISE3 from the USEARCH package will be executed. This tool has build in chimera checking https://www.drive5.com/usearch/manual/cmd_unoise3.html.
 The command that is being used:
 ```
-usearch -unoise3 uniques_sorted.fa -unoise_alpha <alpha> -minsize <minsize> -tabbedout cluster_file.txt -zotus zotususearch.fa
+usearch -unoise3 uniques_sorted.fa -unoise_alpha <alpha setting> -minsize <minimal abundance> -tabbedout cluster_file.txt -zotus zotususearch.fa
 ```
 ### **5. UPARSE**
 If the user choose cluster_otus (UPARSE) as clustering method cluster_otus from the USEARCH package will be executed https://drive5.com/usearch/manual/cmd_cluster_otus.html. This tool clusters at a 97% identity and has build in chimera checking. 
@@ -107,7 +107,24 @@ vsearch --cluster_size non_chimera.fa --id <cluster identity> --sizein --fasta_w
 The user has the option to not check for chimeras, in this case only the command of step 7 will be executed.
 
 ### **9. VSEARCH UNOISE**
-The UNOISE algorithm is also build in the VSEARCH package, the difference with UNOISE from the USEARCH package is that this one does not have build in chimera checking.
+The UNOISE algorithm is also build in the VSEARCH package, the difference with UNOISE from the USEARCH package is that this one does not have build in chimera checking. So here we use tools from VSEARCH and first UNOISE is executed and afther that chimera checking is done.The command that is being used:
+```
+vsearch --cluster_unoise uniques_sorted.fa --unoise_alpha <alpha setting> --minsize <minimal abundance> --minseqlength 1 --centroids zotusvsearch.fa
+```
+### **10. VSEARCH uchime3_denovo**
+Chimera checking on denoised reads with VSEARCH. The command that is being used:
+```
+vsearch --uchime3_denovo zotusvsearch.fa --fasta_width 0 --nonchimeras otu_sequences_nochime.fa
+```
+### **11. VSEARCH UNOISE**
+The command that is being used:
+vsearch --cluster_unoise uniques_sorted.fa --unoise_alpha <alpha setting> --minsize <minimal abundance> --minseqlength 1 --centroids zotusvsearch.fa
+  
+### **12. VSEARCH usearch_global**
+After clustering the reads need to be mapped back on the otus to create an otu table. This tool is comming from the VSEARCH package but for some extra info you can vitis the hollowing pages: https://drive5.com/usearch/manual/pipe_otutab.html and https://drive5.com/usearch/manual/mapreadstootus.html. The command that is being used:   
+```
+vsearch --usearch_global combined.fa --db otu_sequences.fa --id 0.97 --minseqlength 1 --otutabout otutab.txt --biomout bioom.json
+```
 
 
 ## Source

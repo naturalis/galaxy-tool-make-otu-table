@@ -79,8 +79,35 @@ The command that is being used:
 ```
 vsearch --sortbysize uniques.fa --output uniques_sorted.fa --minseqlength 1 --minsize <your min size>
 ```
+### **4. UNOISE**
+If the user choose UNOISE as clustering method UNOISE3 from the USEARCH package will be executed. This tool has build in chimera checking https://www.drive5.com/usearch/manual/cmd_unoise3.html.
+The command that is being used:
+```
+usearch -unoise3 uniques_sorted.fa -unoise_alpha <alpha> -minsize <minsize> -tabbedout cluster_file.txt -zotus zotususearch.fa
+```
+### **5. UPARSE**
+If the user choose cluster_otus (UPARSE) as clustering method cluster_otus from the USEARCH package will be executed https://drive5.com/usearch/manual/cmd_cluster_otus.html. This tool clusters at a 97% identity and has build in chimera checking. 
+The command that is being used:
+```
+usearch11 -cluster_otus uniques_sorted.fa -uparseout cluster_file.txt -otus otu_sequences.fa -relabel Otu -fulldp
+```
+### **6. VSEARCH uchime_denovo**
+This tool is part of the VSEARCH package and it does chimera checking. If the users selects clustering with VSEARCH and with chimera checking this will be executed.
+The command that is being used:
+```
+vsearch --uchime_denovo uniques_sorted.fa --sizein --fasta_width 0 --nonchimeras non_chimera.fa
+```
+### **7. VSEARCH cluster_size**
+This tool is part of the VSEARCH package, it clusters at a certain identity that the user can set. This tool does not have build in chimera checking. And will be executed right after step 6.
+The command that is being used:
+```
+vsearch --cluster_size non_chimera.fa --id <cluster identity> --sizein --fasta_width 0 --minseqlength 1 --relabel Otu --centroids otu_sequences.fa
+```
+### **8. VSEARCH cluster_size**
+The user has the option to not check for chimeras, in this case only the command of step 7 will be executed.
 
-
+### **9. VSEARCH UNOISE**
+The UNOISE algorithm is also build in the VSEARCH package, the difference with UNOISE from the USEARCH package is that this one does not have build in chimera checking.
 
 
 ## Source

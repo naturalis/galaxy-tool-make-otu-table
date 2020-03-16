@@ -35,7 +35,8 @@ git clone https://github.com/naturalis/galaxy-tool-make-otu-table
 ```
 chmod 777 galaxy-tool-make-otu-table/make_otu_table.py
 ```
-Create the conda environment
+Create the conda environment  
+(user: **root**) 
 ```
 conda env create -f make_otu_table_environment.yml
 ```

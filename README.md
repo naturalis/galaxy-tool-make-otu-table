@@ -41,6 +41,7 @@ Create the conda environment
 conda env create -f make_otu_table_environment.yml
 ```
 Add the following line to /home/galaxy/galaxy/config/tool_conf.xml
+(user: **galaxy**)
 ```
 <tool file="/home/galaxy/Tools/galaxy-tool-make-otu-table/make_otu_table.xml" />
 ```

@@ -122,7 +122,7 @@ The command that is being used:
 vsearch --cluster_unoise uniques_sorted.fa --unoise_alpha <alpha setting> --minsize <minimal abundance> --minseqlength 1 --centroids zotusvsearch.fa
   
 ### **12. VSEARCH usearch_global**
-After clustering the reads need to be mapped back on the otus to create an otu table. This tool is comming from the VSEARCH package but for some extra info you can vitis the hollowing pages: https://drive5.com/usearch/manual/pipe_otutab.html and https://drive5.com/usearch/manual/mapreadstootus.html. The command that is being used:   
+After clustering the reads need to be mapped back on the otus to create an otu table. This tool is comming from the VSEARCH package but for some extra info you can vitis the following pages: https://drive5.com/usearch/manual/pipe_otutab.html and https://drive5.com/usearch/manual/mapreadstootus.html. The command that is being used:   
 ```
 vsearch --usearch_global combined.fa --db otu_sequences.fa --id 0.97 --minseqlength 1 --otutabout otutab.txt --biomout bioom.json
 ```

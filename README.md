@@ -28,15 +28,16 @@ The following tools/packages are needed but included in the conda environment (m
 Installing the tool for use in Galaxy
 ```
 cd /home/galaxy/Tools
-```
-```
 git clone https://github.com/naturalis/galaxy-tool-make-otu-table
-```
-```
 chmod 777 galaxy-tool-make-otu-table/make_otu_table.py
 ```
-Create the conda environment  
-(user: **root**) 
+Create the conda environment\
+Make sure that _conda_group_ has permissions for all files recursively in at least `/opt/anaconda3/envs/`
+```
+sudo chgrp -R conda_group /opt
+sudo chmod -R g+rwx /opt 
+```
+
 ```
 conda env create -f make_otu_table_environment.yml
 ```

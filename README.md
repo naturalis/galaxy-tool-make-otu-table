@@ -4,7 +4,11 @@ A pipeline for clustering and making otu tables in galaxy. This repo can be used
 ### Prerequisites
 
 **USEARCH**<br />
-(user: **galaxy**)  
+(user: **galaxy**)\
+\
+A **USEARCH** license, which basically means you'll receive a download link after registration,\
+can be obtained [here](https://www.drive5.com/usearch/download_academic_site.html) for university compute clusters. Paste the link in the **wget** command below.\
+Be aware that the license has to be renewed each year.
 ```
 mkdir /home/galaxy/Tools/usearch 
 cd /home/galaxy/Tools/usearch

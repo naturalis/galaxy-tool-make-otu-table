@@ -1,5 +1,5 @@
 # galaxy-tool-make-otu-table
-A pipeline for clustering and making otu tables in galaxy. This repo can be used for the new (03-04-2019) galaxy 19.01 Naturalis server. The old galaxy 16.04 server is not supported anymore with this pipeline.
+A pipeline for clustering and making otu tables in galaxy. This repo has been adapted for Python3 and tested with Galaxy 19.09 Naturalis server. Older Galaxy releases are no longer supported.
 ## Getting Started
 ### Prerequisites
 
@@ -24,7 +24,7 @@ The following tools/packages are needed but included in the conda environment (m
 * **VSEARCH**
 * **R**
 * **DADA2**
-* **python2**
+* **python3**
 * **biopython**
 
 ### Installing  
@@ -55,10 +55,9 @@ If you need to create the conda environment manally:
 conda config --add channels conda-forge
 conda config --add channels bioconda
 conda config --add channels defaults
-conda create -n __dada2env@1.0.0 python=3 anaconda
-conda activate __dada2env@1.0.0
-conda install -c bioconda bioconductor-dada2=1.10.0
-conda install python=2.7.16
+conda create -n __dada2env@1.14.0 -c conda-forge -c bioconda -c defaults --override-channels bioconductor-dada2=1.14.0
+conda activate __dada2env@1.14.0
+conda install python=3
 conda install biopython
 conda install vsearch
 conda deactivate
@@ -90,7 +89,7 @@ vsearch --sortbysize uniques.fa --output uniques_sorted.fa --minseqlength 1 --mi
 If the user choose UNOISE as clustering method UNOISE3 from the USEARCH package will be executed. This tool has build in chimera checking https://www.drive5.com/usearch/manual/cmd_unoise3.html.
 The command that is being used:
 ```
-usearch -unoise3 uniques_sorted.fa -unoise_alpha <alpha setting> -minsize <minimal abundance> -tabbedout cluster_file.txt -zotus zotususearch.fa
+usearch11 -unoise3 uniques_sorted.fa -unoise_alpha <alpha setting> -minsize <minimal abundance> -tabbedout cluster_file.txt -zotus zotususearch.fa
 ```
 ### **5. UPARSE**
 If the user choose cluster_otus (UPARSE) as clustering method cluster_otus from the USEARCH package will be executed https://drive5.com/usearch/manual/cmd_cluster_otus.html. This tool clusters at a 97% identity and has build in chimera checking. 

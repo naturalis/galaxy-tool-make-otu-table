@@ -50,18 +50,17 @@ Add the following line to /home/galaxy/galaxy/config/tool_conf.xml
 ```
 <tool file="/home/galaxy/Tools/galaxy-tool-make-otu-table/make_otu_table.xml" />
 ```
-If you need to create the conda environment manally:
+If you need to create the conda environment manually:
 ```
 conda config --add channels conda-forge
 conda config --add channels bioconda
 conda config --add channels defaults
-conda create -n __dada2env@1.14.0 -c conda-forge -c bioconda -c defaults --override-channels bioconductor-dada2=1.14.0
-conda activate __dada2env@1.14.0
-conda install python=3
-conda install biopython
-conda install vsearch
-conda deactivate
+conda create -n __dada2env@1.14.0 -c conda-forge -c bioconda -c defaults --override-channels bioconductor-dada2=1.14.0 python=3.8.2 biopython=1.76 vsearch=2.14.2
+
 ```
+Note: This installation shouldn't take long (at the end of March 2020 it took less than a minute)!
+If you get 'found conflicts!' messages or it takes ages to install, something is wrong.
+For this reason the anaconda package (which apparently was not a dependency) was also dropped.
 ## Workflow
 On the following graph you can see the global workflow:
 <br />

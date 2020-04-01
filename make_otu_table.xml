@@ -3,7 +3,7 @@
 <description>Make an otu or zotu table</description>
 -->
     <requirements>
-        <requirement type="package" version="1.0.0">dada2env</requirement>
+        <requirement type="package" version="1.14">dada2env</requirement>
     </requirements>
 <command>
 <![CDATA[

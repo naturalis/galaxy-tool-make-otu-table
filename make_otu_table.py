@@ -40,7 +40,6 @@ def extension_check(outputFolder):
     for x in files:
         if args.input_type == "FASTQ":
             if os.path.splitext(x)[1].lower() == ".fastq" or os.path.splitext(x)[1] == ".fq":
-#                fastafile = os.path.splitext(x)[0].translate((string.maketrans("-. ", "___"))) + ".fa"
                 fastafile = os.path.splitext(x)[0].translate((str.maketrans("-. ", "___"))) + ".fa"
                 error = Popen(["awk '{if(NR%4==1) {printf(\">%s\\n\",substr($0,2));} else if(NR%4==2) print;}' " + outputFolder + "/files/" + x + " > "+outputFolder+"/fasta/" + fastafile], stdout=PIPE, stderr=PIPE, shell=True).communicate()[1].strip()
                 admin_log(outputFolder, error=error.decode(), function="extension_check")
@@ -55,7 +54,7 @@ def extension_check(outputFolder):
                 admin_log(outputFolder, error=x+"\nWrong extension, no fastq file (.fastq, .fq) file will be ignored", function="extension_check")
         else:
             if check_if_fasta(outputFolder + "/files/" + x):
-                fastafile = os.path.splitext(x)[0].translate((string.maketrans("-. ", "___"))) + ".fa"
+                fastafile = os.path.splitext(x)[0].translate((str.maketrans("-. ", "___"))) + ".fa"
                 call(["mv", outputFolder + "/files/" + x, outputFolder + "/fasta/" + fastafile])
                 call(["sed -i '$a\\' " + outputFolder + "/fasta/" + fastafile], shell=True)
                 call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/" + fastafile + " >> " + outputFolder + "/combined.fa"], shell=True)

@@ -48,38 +48,41 @@ then
 fi
 if [ $6 ]
 then
-    cp $outlocation"/otu_sequences.fa" $6 && [ -f $outlocation"/otu_sequences.fa" ]
+	cp $outlocation"/otu_sequences.fa" $6 && [ -f $outlocation"/otu_sequences.fa" ]
+	# convert interleaved or multiline fasta to singleline
+	cat $outlocation"/otu_sequences.fa" | awk '/^>/ { if(NR>1) print "";  printf("%s\n",$0); next; } { printf("%s",$0);}  END {printf("\n");}' > $outlocation"/otu_sequences_DG.fa"
+	rm $outlocation"/otu_sequences.fa"
 	#------------------------------------------------------------------
 	#  Adjust fasta headers to make them compatible with Otu-table.
 	#  Files seem to be sorted, but sort anyway, just in case.
 	#------------------------------------------------------------------
 	# max length Otu label
-	max_length=$(egrep "^>Otu" "$6" | awk '{print length($1)}' | sort -n | uniq | tail -n1) 
+	max_length=$(cat $outlocation"/otu_sequences_DG.fa"| egrep "^>Otu" | awk '{print length($1)}' | sort -n | uniq | tail -n1) 
 	# max number of digits of Otu label (substract "Otu" from max_length Otu label)
 	otu_digits=$(echo $max_length-4 | bc)
 	# create a string of zeros 
-	otu_digit_string=$(echo $(yes 0 | head -n"$otu_digits") | tr -d " ")
+	otu_digit_string=$(echo $(yes 0 | head -n "$otu_digits") | tr -d " ")
 	# padding zeros
-	sed "s/\(^>Otu\)\([0-9]\)/\1$otu_digit_string\2/g; s/0*\([0-9]\{$otu_digits,\}\)/\1/g" < $6 | paste - - | sort -n | sed 's/\t/\n/g' > $outlocation"/otu_sequences_DG.fa"
-    cp $outlocation"/otu_sequences_DG.fa" $6 && [ -f $outlocation"/otu_sequences_DG.fa" ]
+	cat $outlocation"/otu_sequences_DG.fa" | sed "s/\(^>Otu\)\([0-9]\)/\1$otu_digit_string\2/g; s/0*\([0-9]\{$otu_digits,\}\)/\1/g" | paste - - | sort -n | sed 's/\t/\n/g' > $outlocation"/otu_sequences_DG2.fa"
+	rm $outlocation"/otu_sequences_DG.fa"
+	cp $outlocation"/otu_sequences_DG2.fa" $6 && [ -f $outlocation"/otu_sequences_DG2.fa" ]
 fi
 if [ $7 ]
 then
-    # it is not $7 that gets changed but the actual file ###.dat
+	# it is not $7 that gets changed but the actual file ###.dat
 	cp $outlocation"/otutab.txt" $7 && [ -f $outlocation"/otutab.txt" ]
-	
 	#------------------------------------------------------------------
 	#  adjust Otu label format and sort
 	#------------------------------------------------------------------
 	# max length Otu label
-	max_length=$(egrep "^Otu" "$7" | awk '{print length($1)}' | sort -n | uniq | tail -n1) 
+	max_length=$(cat $outlocation"/otutab.txt" | egrep "^Otu" | awk '{print length($1)}' | sort -n | uniq | tail -n1) 
 	# max number of digits of Otu label (substract "Otu" from max_length Otu label)
 	otu_digits=$(echo $max_length-3 | bc)
 	# create a string of zeros 
-	otu_digit_string=$(echo $(yes 0 | head -n"$otu_digits") | tr -d " ")
+	otu_digit_string=$(echo $(yes 0 | head -n "$otu_digits") | tr -d " ")
 	# padding zeros
-	sed "s/\(^Otu\)\([0-9]\)/\1$otu_digit_string\2/g; s/0*\([0-9]\{$otu_digits,\}\)/\1/g" < $7 | sort -n > $outlocation"/otutab_DG.txt"
-	
+	cat $outlocation"/otutab.txt" | sed "s/\(^Otu\)\([0-9]\)/\1$otu_digit_string\2/g; s/0*\([0-9]\{$otu_digits,\}\)/\1/g" | sort -n > $outlocation"/otutab_DG.txt"
+	rm $outlocation"/otutab.txt"
 	cp $outlocation"/otutab_DG.txt" $7 && [ -f $outlocation"/otutab_DG.txt" ]
 fi
 if [ $8 ] && [ -f $outlocation"/bioom.json" ] && [ -f $outlocation"/bioom.json" ]

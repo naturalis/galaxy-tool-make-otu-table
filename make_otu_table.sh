@@ -46,6 +46,8 @@ if [ $5 ]
 then
     mv $outlocation"/log.log" $5 && [ -f $outlocation"/log.log" ]
 fi
+
+# Output Otu sequences as fasta file
 if [ $6 ]
 then
 	cp $outlocation"/otu_sequences.fa" $6 && [ -f $outlocation"/otu_sequences.fa" ]
@@ -67,6 +69,9 @@ then
 	rm $outlocation"/otu_sequences_DG.fa"
 	cp $outlocation"/otu_sequences_DG2.fa" $6 && [ -f $outlocation"/otu_sequences_DG2.fa" ]
 fi
+
+
+# Output Otu table
 if [ $7 ]
 then
 	# it is not $7 that gets changed but the actual file ###.dat
@@ -81,10 +86,12 @@ then
 	# create a string of zeros 
 	otu_digit_string=$(echo $(yes 0 | head -n "$otu_digits") | tr -d " ")
 	# padding zeros
-	cat $outlocation"/otutab.txt" | sed "s/\(^Otu\)\([0-9]\)/\1$otu_digit_string\2/g; s/0*\([0-9]\{$otu_digits,\}\)/\1/g" | sort -n > $outlocation"/otutab_DG.txt"
+	cat $outlocation"/otutab.txt" | sed "s/\(^Otu\)\([0-9]\)/\1$otu_digit_string\2/g; s/0*\([0-9]\{$otu_digits,\}\)/\1/g" | sort -n | sed '$!H;1h;$!d;G' > $outlocation"/otutab_DG.txt"
 	rm $outlocation"/otutab.txt"
 	cp $outlocation"/otutab_DG.txt" $7 && [ -f $outlocation"/otutab_DG.txt" ]
 fi
+
+# OUtput Bioom file
 if [ $8 ] && [ -f $outlocation"/bioom.json" ] && [ -f $outlocation"/bioom.json" ]
 then
     mv $outlocation"/bioom.json" $8 && [ -f $outlocation"/bioom.json" ]

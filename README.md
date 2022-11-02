@@ -1,66 +1,39 @@
 # galaxy-tool-make-otu-table
-A pipeline for clustering and making otu tables in galaxy. This repo has been adapted for Python3 and tested with Galaxy 19.09 Naturalis server. Older Galaxy releases are no longer supported.
-## Getting Started
+A pipeline for clustering and making otu tables. This repo uses Python3 and has been tested  
+with Galaxy v.22.01 (using a Terraform/Ansible install on the new Naturalis OpenStack). 
+
 ### Prerequisites
+For **USEARCH** no Conda package exists at the time of writing.  
+The Conda package for **unzip** conflicted with other requirements, but has to be  
+available in your environment.  
 
-**USEARCH**<br />
-(user: **galaxy**)\
-\
-A **USEARCH** license, which basically means you'll receive a download link after registration,\
-can be obtained [here](https://www.drive5.com/usearch/download_academic_site.html) for university compute clusters. Paste the link in the **wget** command below.\
-Be aware that the license has to be renewed each year.
-```
-mkdir /home/galaxy/Tools/usearch 
-cd /home/galaxy/Tools/usearch
-wget [your usearch licence]
-mv [your usearch licence] usearch11
-chmod 777 /home/galaxy/Tools/usearch/usearch11
-```
-(user: **ubuntu**)  
-```
-sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11
-```
-The following tools/packages are needed but included in the conda environment (make_otu_table_environment.yml)
-* **VSEARCH**
-* **R**
-* **DADA2**
-* **python3**
-* **biopython**
+To install **USEARCH** create a *usearch* folder in your Tools directory:  
+`sudo wget -P /path/to/Tools/usearch https://www.drive5.com/downloads/usearch11.0.667_i86linux32.gz`  
+Unzip, make usearch executable and available:  
+`sudo gunzip /path/to/Tools/usearch/usearch11.0.667_i86linux32.gz`  
+`sudo chmod 755 /path/to/Tools/usearch/usearch11`  
+`sudo ln -s /home/galaxy/Tools/usearch/usearch11 /usr/local/bin/usearch11`  
 
-### Installing  
-(user: **galaxy**)  
-Installing the tool for use in Galaxy
-```
-cd /home/galaxy/Tools
-git clone https://github.com/naturalis/galaxy-tool-make-otu-table
-chmod 777 galaxy-tool-make-otu-table/make_otu_table.py
-```
-Create the conda environment\
-Make sure that _conda_group_ has permissions for all files recursively in at least `/opt/anaconda3/envs/`
-```
-sudo chgrp -R conda_group /opt
-sudo chmod -R g+rwx /opt 
-```
+## Installation
+### Manual
+Clone this repo in your Galaxy ***Tools*** directory:  
+`git clone https://github.com/naturalis/galaxy-tool-make-otu-table`  
 
-```
-conda env create -f make_otu_table_environment.yml
-```
-Add the following line to /home/galaxy/galaxy/config/tool_conf.xml
-(user: **galaxy**)
-```
-<tool file="/home/galaxy/Tools/galaxy-tool-make-otu-table/make_otu_table.xml" />
-```
-If you need to create the conda environment manually:
-```
-conda config --add channels conda-forge
-conda config --add channels bioconda
-conda config --add channels defaults
-conda create -n __dada2env@1.14.0 -c conda-forge -c bioconda -c defaults --override-channels bioconductor-dada2=1.14.0 python=3.8.2 biopython=1.76 vsearch=2.14.2
+Make sure the scripts are executable:   
+`chmod 755 galaxy-tool-make-otu-table/make_otu_table.sh`  
+`chmod 755 galaxy-tool-make-otu-table/make_otu_table.sh`  
 
-```
-Note: This installation shouldn't take long (at the end of March 2020 it took less than a minute)!
-If you get 'found conflicts!' messages or it takes ages to install, something is wrong.
-For this reason the anaconda package (which apparently was not a dependency) was also dropped.
+Append the file ***tool_conf.xml***:    
+`<tool file="/path/to/Tools/galaxy-tool-make-otu-table/make_otu_table.xml" />`  
+
+### Ansible
+Depending on your setup the [ansible.builtin.git](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html) module could be used.  
+[Install the tool](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html#examples) by including the following in your dedicated ***.yml** file:  
+
+`  - repo: https://github.com/naturalis/galaxy-tool-make-otu-table`  
+&ensp;&ensp;`file: make_otu_table.xml`  
+&ensp;&ensp;`version: master` 
+
 ## Workflow
 On the following graph you can see the global workflow:
 <br />

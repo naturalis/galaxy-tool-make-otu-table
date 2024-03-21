@@ -3,6 +3,7 @@
 
 """
 import sys, os, argparse, string
+import threading
 import glob
 from Bio import SeqIO
 from subprocess import call, Popen, PIPE
@@ -29,12 +30,16 @@ requiredArguments.add_argument('-abundance_minsize', metavar='minimal abundance'
                                help='unoise minsize', required=False, nargs='?', default="1")
 args = parser.parse_args()
 
+log_file_path = args.out_folder + "/log.log"
+
 def check_if_fasta(file):
+    log_write("Starting check_if_fasta", "make_otu_table.py", log_file_path)
     with open(file, "r") as handle:
         fasta = SeqIO.parse(handle, "fasta")
         return any(fasta)
 
 def extension_check(outputFolder):
+    log_write("Starting extension check", "make_otu_table.py", log_file_path)
     files = [os.path.basename(x) for x in sorted(glob.glob(outputFolder + "/files/*"))]
     fileFound = False
     for x in files:
@@ -51,7 +56,7 @@ def extension_check(outputFolder):
                 call(["cat " + outputFolder + "/files/"+x+" >> "+ outputFolder + "/combined_dada.fastq"], shell=True)
                 fileFound = True
             else:
-                admin_log(outputFolder, error=x+"\nWrong extension, no fastq file (.fastq, .fq) file will be ignored", function="extension_check")
+                log_write(x + "\nWrong extension, no fastq file (.fastq, .fq) file will be ignored. Please check if file extensions are correct and if your files are in the root of the zip file (not in sudirectories).", "ERROR:", log_file_path)
         else:
             if check_if_fasta(outputFolder + "/files/" + x):
                 fastafile = os.path.splitext(x)[0].translate((str.maketrans("-. ", "___"))) + ".fa"
@@ -60,23 +65,24 @@ def extension_check(outputFolder):
                 call(["sed 's/>/>" + fastafile[:-3] + "./' " + outputFolder + "/fasta/" + fastafile + " >> " + outputFolder + "/combined.fa"], shell=True)
                 fileFound = True
             else:
-                admin_log(outputFolder, error="This is not a fasta file, file will be ignored: " + x, function="extension_check")
-    Popen(["rm", "-rf", outputFolder + "/files"], stdout=PIPE, stderr=PIPE)
+                log_write("This is not a fasta file, file will be ignored", "ERROR:", log_file_path)
+    process = Popen(["rm", "-rf", outputFolder + "/files"], stdout=PIPE, stderr=PIPE)
+    process_name = process.args[0]
+    process_streams(process, process_name, log_file_path)
     if not fileFound:
-        admin_log(outputFolder, error="Tool stopped, no "+args.input_type+" files found", function="extension_check")
+        log_write("Tool stopped, no "+args.input_type+" files found", "ERROR:", log_file_path)
         exit()
 
 def admin_log(outputFolder, out=None, error=None, function=""):
     with open(outputFolder + "/log.log", 'a') as adminlogfile:
         seperation = 60 * "="
         if out:
-#            adminlogfile.write(function + " \n" + seperation + "\n" + out + "\n\n")
             adminlogfile.write(str(function) + " \n" + str(seperation) + "\n" + str(out) + "\n\n")
         if error:
-#            adminlogfile.write(function + "\n" + seperation + "\n" + error + "\n\n")
             adminlogfile.write(str(function) + "\n" + str(seperation) + "\n" + str(error) + "\n\n")
 
 def remove_files(outputFolder):
+    log_write("Starting remove_files", "make_otu_table.py", log_file_path)
     call(["rm", "-rf", outputFolder+"/fasta"])
     if args.cluster != "dada2":
         call(["rm", outputFolder+"/combined.fa", outputFolder+"/uniques.fa"])
@@ -84,21 +90,29 @@ def remove_files(outputFolder):
         call(["rm", outputFolder + "/combined_dada.fastq", outputFolder + "/combined_dada_filtered.fastq"])
 
 def vsearch_derep_fulllength(outputFolder):
-    out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "--minseqlength", "1", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
-    admin_log(outputFolder, out=out.decode(), error=error.decode(), function="derep_fulllength")
+    log_write("Starting vsearch_derep_fulllength", "make_otu_table.py", log_file_path)
+    #out, error = Popen(["vsearch", "--derep_fulllength", outputFolder+"/combined.fa", "--output", outputFolder+"/uniques.fa", "--minseqlength", "1", "-sizeout"], stdout=PIPE, stderr=PIPE).communicate()
+    process = Popen(["vsearch", "--derep_fulllength", outputFolder + "/combined.fa", "--output", outputFolder + "/uniques.fa", "--minseqlength", "1", "-sizeout"], stdout=PIPE, stderr=PIPE)
+    process_name = process.args[0]
+    process_streams(process, process_name, log_file_path)
 
 def usearch_cluster(outputFolder):
+    log_write("usearch_cluster", "make_otu_table.py", log_file_path)
     #sort by size
-    out, error = Popen(["vsearch", "--sortbysize", outputFolder+"/uniques.fa", "--output", outputFolder+"/uniques_sorted.fa","--minseqlength", "1","--minsize", args.abundance_minsize], stdout=PIPE, stderr=PIPE).communicate()
-    admin_log(outputFolder, out=out.decode(), error=error.decode(), function="sortbysize")
+    process = Popen(["vsearch", "--sortbysize", outputFolder+"/uniques.fa", "--output", outputFolder+"/uniques_sorted.fa","--minseqlength", "1","--minsize", args.abundance_minsize], stdout=PIPE, stderr=PIPE)
+    process_name = process.args[0]
+    process_streams(process, process_name, log_file_path)
 
     if args.cluster == "cluster_otus":
-        out, error = Popen(["usearch11", "-cluster_otus", outputFolder+"/uniques_sorted.fa", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="cluster_otus")
+        process = Popen(["usearch11", "-cluster_otus", outputFolder+"/uniques_sorted.fa", "-uparseout", outputFolder+"/cluster_file.txt", "-otus", outputFolder+"/otu_sequences.fa", "-relabel", "Otu", "-fulldp"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
 
     if args.cluster == "unoise":
-        out, error = Popen(["usearch11","-unoise3", outputFolder+"/uniques_sorted.fa", "-unoise_alpha", args.unoise_alpha, "-minsize", args.abundance_minsize, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="unoise")
+        process = Popen(["usearch11","-unoise3", outputFolder+"/uniques_sorted.fa", "-unoise_alpha", args.unoise_alpha, "-minsize", args.abundance_minsize, "-tabbedout", outputFolder+"/cluster_file.txt", "-zotus", outputFolder+"/zotususearch.fa"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
+
         count = 1
         with open(outputFolder + "/zotususearch.fa") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:
             for record in SeqIO.parse(handle, "fasta"):
@@ -108,21 +122,30 @@ def usearch_cluster(outputFolder):
         Popen(["rm", outputFolder + "/zotususearch.fa"])
 
     if args.cluster == "vsearch":
-        out, error = Popen(["vsearch", "--uchime_denovo", outputFolder+"/uniques_sorted.fa", "--sizein", "--fasta_width", "0", "--nonchimeras", outputFolder+"/non_chimera.fa"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="vsearch uchime_denovo")
-        out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--fasta_width", "0","--minseqlength", "1", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="vsearch cluster")
+        process = Popen(["vsearch", "--uchime_denovo", outputFolder+"/uniques_sorted.fa", "--sizein", "--fasta_width", "0", "--nonchimeras", outputFolder+"/non_chimera.fa"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
+
+        process = Popen(["vsearch", "--cluster_size", outputFolder+"/non_chimera.fa", "--id", args.clusterid, "--sizein", "--fasta_width", "0","--minseqlength", "1", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences.fa"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
+
         call(["rm", outputFolder + "/non_chimera.fa"])
 
     if args.cluster == "vsearch_no_chimera_check":
-        out, error = Popen(["vsearch", "--cluster_size", outputFolder+"/uniques_sorted.fa", "--id", args.clusterid, "--sizein", "--fasta_width", "0","--minseqlength", "1", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="vsearch cluster")
+        process = Popen(["vsearch", "--cluster_size", outputFolder+"/uniques_sorted.fa", "--id", args.clusterid, "--sizein", "--fasta_width", "0","--minseqlength", "1", "--relabel", "Otu", "--centroids", outputFolder+"/otu_sequences.fa"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
 
     if args.cluster == "vsearch_unoise":
-        out, error = Popen(["vsearch", "--cluster_unoise", outputFolder+"/uniques_sorted.fa", "--unoise_alpha", args.unoise_alpha,"--minsize", args.abundance_minsize,"--minseqlength", "1", "--centroids", outputFolder+"/zotusvsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="vsearch unoise")
-        out, error = Popen(["vsearch", "--uchime3_denovo", outputFolder+"/zotusvsearch.fa","--fasta_width", "0", "--nonchimeras", outputFolder + "/otu_sequences_nochime.fa"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="vsearch uchime_denovo3")
+        process = Popen(["vsearch", "--cluster_unoise", outputFolder+"/uniques_sorted.fa", "--unoise_alpha", args.unoise_alpha,"--minsize", args.abundance_minsize,"--minseqlength", "1", "--centroids", outputFolder+"/zotusvsearch.fa"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
+
+        process = Popen(["vsearch", "--uchime3_denovo", outputFolder+"/zotusvsearch.fa","--fasta_width", "0", "--nonchimeras", outputFolder + "/otu_sequences_nochime.fa"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
+
         count = 1
         with open(outputFolder + "/otu_sequences_nochime.fa") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:
             for record in SeqIO.parse(handle, "fasta"):
@@ -132,8 +155,10 @@ def usearch_cluster(outputFolder):
         Popen(["rm", outputFolder + "/otu_sequences_nochime.fa"])
 
     if args.cluster == "vsearch_unoise_no_chimera_check":
-        out, error = Popen(["vsearch", "--cluster_unoise", outputFolder+"/uniques_sorted.fa", "--unoise_alpha", args.unoise_alpha,"--minsize", args.abundance_minsize, "--minseqlength", "1", "--centroids", outputFolder+"/zotusvsearch.fa"], stdout=PIPE, stderr=PIPE).communicate()
-        admin_log(outputFolder, out=out.decode(), error=error.decode(), function="vsearch unoise")
+        process = Popen(["vsearch", "--cluster_unoise", outputFolder+"/uniques_sorted.fa", "--unoise_alpha", args.unoise_alpha,"--minsize", args.abundance_minsize, "--minseqlength", "1", "--centroids", outputFolder+"/zotusvsearch.fa"], stdout=PIPE, stderr=PIPE)
+        process_name = process.args[0]
+        process_streams(process, process_name, log_file_path)
+
         count = 1
         with open(outputFolder+"/zotusvsearch.fa") as handle, open(outputFolder + "/otu_sequences.fa", 'a') as newotu:
             for record in SeqIO.parse(handle, "fasta"):
@@ -150,18 +175,26 @@ def dada2_cluster(outputFolder):
                 ncount += 1
             else:
                 output.write(record.format("fastq"))
-    admin_log(outputFolder, out="Sequences with N bases found and removed: "+str(ncount), function="remove N bases")
+    log_write("Sequences with N bases found and removed: "+str(ncount), "Remove N bases", log_file_path)
 
-    out, error = Popen(["Rscript", "/srv/galaxy/local_tools/galaxy-tool-make-otu-table/dada2.R", outputFolder + "/combined_dada_filtered.fastq", outputFolder + "/otu_sequences.fa"], stdout=PIPE, stderr=PIPE).communicate()
-    admin_log(outputFolder, out=out.decode(), error=error.decode(), function="dada2")
+    process = Popen(["Rscript", "/srv/galaxy/local_tools/galaxy-tool-make-otu-table/dada2.R", outputFolder + "/combined_dada_filtered.fastq", outputFolder + "/otu_sequences.fa"], stdout=PIPE, stderr=PIPE)
+    process_name = process.args[0]
+    process_streams(process, process_name, log_file_path)
+
+    #admin_log(outputFolder, out=out.decode(), error=error.decode(), function="dada2")
 
 def usearch_otu_tab(outputFolder):
-    out, error = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.97", "--minseqlength", "1", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE).communicate()
-    admin_log(outputFolder, out=out.decode(), error=error.decode(), function="otutab")
+    process = Popen(["vsearch", "--usearch_global", outputFolder+"/combined.fa", "--db", outputFolder+"/otu_sequences.fa", "--id", "0.97", "--minseqlength", "1", "--otutabout", outputFolder+"/otutab.txt", "--biomout", outputFolder+"/bioom.json"], stdout=PIPE, stderr=PIPE)
+    process_name = process.args[0]
+    process_streams(process, process_name, log_file_path)
+
+    #admin_log(outputFolder, out=out.decode(), error=error.decode(), function="otutab")
 
 def zip_it_up(outputFolder):
-    out, error = Popen(["zip","-r","-j", outputFolder+"/all_output.zip", outputFolder+"/"], stdout=PIPE, stderr=PIPE).communicate()
-    admin_log(outputFolder, out=out.decode(), error=error.decode(), function="zip_it_up")
+    process = Popen(["zip","-r","-j", outputFolder+"/all_output.zip", outputFolder+"/"], stdout=PIPE, stderr=PIPE)
+
+    process_name = process.args[0]
+    process_streams(process, process_name, log_file_path)
 
 def send_output(outputFolder):
     if args.out:
@@ -184,12 +217,47 @@ def make_output_folders(outputFolder):
     call(["mkdir", outputFolder + "/files"])
     call(["mkdir", outputFolder + "/fasta"])
 
+# Function for writing data to a logfile.
+def log_write(message, prefix, log_file):
+    with open(log_file, 'a') as log:
+        print(f"{prefix}: {message}") # show info in galaxy stdout/stderr output...
+        log_line = f"{prefix}: {message}\n"
+        log.write(log_line) #...as well as in a logfile.
+
+
+
+# function for retrieving stdout/stderr logdata from a stream
+def read_stream(stream, prefix, log_file):
+    with open(log_file, 'a') as log:
+        #log.write("\n\n##########################################\n\n")
+        for line in iter(stream.readline, b''):
+            decoded_line = line.decode().strip()
+            print(f"{prefix}: {decoded_line}")
+            log_line = f"{prefix}: {decoded_line}\n"
+            log.write(log_line) # write retrieved data to logfile.
+
+# function for starting threads for gathering stdout and stderr data of processes started with Popen()
+# using threads for this function gives the benefit of receiving logs in realtime instead of after the process has completed.
+def process_streams(process, process_name, log_file_path):
+    # start log gathering from streams in a separate thread
+    stdout_thread = threading.Thread(target=read_stream, args=(process.stdout, f"{process_name} stdout", log_file_path))
+    stderr_thread = threading.Thread(target=read_stream, args=(process.stderr, f"{process_name} stderr", log_file_path))
+
+    stdout_thread.start()
+    stderr_thread.start()
+
+    # "join" thread, meaning wait for treads to complete before continouing main script.
+    stdout_thread.join()
+    stderr_thread.join()
+
 def main():
     outputFolder = args.out_folder
     make_output_folders(outputFolder)
-    zip_out, zip_error = Popen(["unzip", args.inzip, "-d", outputFolder.strip() + "/files"], stdout=PIPE,stderr=PIPE).communicate()
-#    admin_log(outputFolder, zip_out, zip_error)
-    admin_log(outputFolder, zip_out.decode(), zip_error.decode())
+
+    process = Popen(["unzip", args.inzip, "-d", outputFolder.strip() + "/files"], stdout=PIPE,stderr=PIPE)
+    process_name = process.args[0]
+    process_streams(process, process_name, log_file_path)
+
     extension_check(outputFolder)
     if args.cluster == "dada2":
         dada2_cluster(outputFolder)
@@ -198,6 +266,7 @@ def main():
         usearch_cluster(outputFolder)
     usearch_otu_tab(outputFolder)
     remove_files(outputFolder)
+    call(["cp", outputFolder + "/log.log", "/home/galaxy"])
     zip_it_up(outputFolder)
 
 if __name__ == '__main__':

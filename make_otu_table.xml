@@ -1,13 +1,18 @@
-<tool id="make_otu_table" name="Make otu table">
+<tool id="make_otu_table" name="Make otu table" version="2.0">
 <!--
 <description>Make an otu or zotu table</description>
 -->
     <requirements>
-		<requirement type="package" version="1.14.0">bioconductor-dada2=</requirement> 
-		<requirement type="package" version="1.76">biopython=</requirement> 
-		<requirement type="package" version="2.14.2">vsearch=</requirement> 
+		<requirement type="package" version="1.14.0">bioconductor-dada2=</requirement>
+		<requirement type="package" version="1.76">biopython=</requirement>
+		<requirement type="package" version="2.14.2">vsearch=</requirement>
 		<!-- <requirement type="package" version="6.0">unzip</requirement> -->
     </requirements>
+
+<stdio>
+	<exit_code range="1:" level="fatal" description="A fatal error occured. Please check tool stderr/stdout logs." />
+</stdio>
+
 <command>
 <![CDATA[
 bash '$__tool_directory__/make_otu_table.sh'
@@ -164,7 +169,7 @@ $algo.cluster_algo
 <tests>
 <test>
 <param name="test_input" value="test_input.txt"/>
-<output name="test_outout" file="test_output.txt"/>
+<output name="test_output" file="test_output.txt"/>
 </test>
 </tests>
 <help>

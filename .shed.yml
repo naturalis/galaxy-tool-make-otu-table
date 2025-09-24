@@ -1,0 +1,14 @@
+name: naturalis_make_otu_table
+owner:  duijker.d
+description: "A pipeline for clustering and making otu tables" 
+long_description: |
+  "A pipeline for clustering and making otu tables. This repo uses Python3 and has been tested
+  with Galaxy v.22.01".
+remote_repository_url: https://github.com/naturalis/galaxy-tool-make-otu-table.git
+homepage_url: https://github.com/naturalis/galaxy-tool-make-otu-table.git
+type: unrestricted
+categories:
+   - "Sequence Analysis"
+auto_tool_repositories:
+  name_template: naturalis_make_otu_table
+  description_template: naturalis_make_otu_table

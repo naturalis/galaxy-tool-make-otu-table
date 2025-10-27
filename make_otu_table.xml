@@ -130,7 +130,7 @@ $algo.cluster_algo
 				</conditional>
 				<param name="output_label" type="text" value="" label="History output name" />
 </inputs>
-<code file="/srv/galaxy/local_tools/galaxy-tool-make-otu-table/dynamic_xml.py"/>
+<code file="dynamic_xml.py"/>
 
 <outputs>
 	<data format="zip" type="data" name="output_zip" label="$input.display_name zip">
